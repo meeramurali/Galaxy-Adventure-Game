@@ -141,8 +141,14 @@ int planet::display(void)
         return 0;
 
     //Display all data member values
-    cout << "\n\tPlanet name: " << name << endl
-         << "\tSun: " << sun << endl
+    cout << "\n\tPlanet name: " << name << endl;
+
+    if (allow_landing())
+        cout << "\tType: Terrestrial" << endl;
+    else
+        cout << "\tType: Gas" << endl;
+ 
+    cout << "\tSun: " << sun << endl
          << "\tSize: " << size << " thousand miles radius" << endl
          << "\tDistance from sun: " << dist << " million miles" << endl
          << "\tNumber of moons: " << num_moons << endl;
@@ -242,9 +248,6 @@ terr_planet::terr_planet(char * planet_name, char * sun_name): planet(planet_nam
 //OUTPUT: no return value
 terr_planet::terr_planet(const terr_planet & to_copy): planet(to_copy)
 {
-    size = set_size();
-    dist = set_distance();
-    num_moons = set_moons();
 }
 
 
@@ -252,9 +255,6 @@ terr_planet::terr_planet(const terr_planet & to_copy): planet(to_copy)
 //Copy constructor
 terr_planet::terr_planet(const planet * to_copy): planet(* to_copy)
 {
-    size = set_size();
-    dist = set_distance();
-    num_moons = set_moons();
 }
 
     
@@ -351,9 +351,6 @@ gas_planet::gas_planet(char * planet_name, char * sun_name): planet(planet_name,
 //OUTPUT: no return value
 gas_planet::gas_planet(const gas_planet & to_copy): planet(to_copy)
 {
-    size = set_size();
-    dist = set_distance();
-    num_moons = set_moons();
 }
 
 
@@ -361,9 +358,6 @@ gas_planet::gas_planet(const gas_planet & to_copy): planet(to_copy)
 //Copy constructor
 gas_planet::gas_planet(const planet * to_copy): planet(* to_copy)
 {
-    size = set_size();
-    dist = set_distance();
-    num_moons = set_moons();
 }
 
 

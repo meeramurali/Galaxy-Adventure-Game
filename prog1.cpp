@@ -11,9 +11,16 @@
 #include "galaxy.h"
 
 
+
+//Constants
+const char FILENAME[] = "galaxy.txt";
+
+
+
 //Prototypes
 void display_menu(char & choice);   //Displays textbased menu and reads user choice
 void get_data(char * & dest);       //Gets data from the user and sizes
+
                                     //the argument array just right
 
 //main function
@@ -33,41 +40,17 @@ int main()
     planet * C_ptr;
     planet * D_ptr;
     solar_system SS1(sun1);
+    galaxy milky_way(2);
 
+    //Load file
+    int num_loaded = milky_way.load_file(FILENAME);
+    cout << num_loaded << " solar systems loaded from file" << endl;
 
-    C_ptr = new terr_planet(name3, sun1);
-    D_ptr = new gas_planet(name4, sun1); 
-
-    //Add planets to SS1
-    if (SS1.add_planet(C_ptr))
-        cout << "Planet added! " << endl;    
-    if (SS1.add_planet(D_ptr))
-        cout << "Planet added! " << endl;    
-
-    //Display solar system
-    int num = SS1.display();
-
-    cout << num << " planets in solar system!" << endl;
-    
-    //Display habitable planets
-    int hab = SS1.display_habitable_planets();
-
-    cout << hab << " habitable planets!" << endl;
-
-    //Explore planet
-    int exp = SS1.explore_planet(name4);
-    if (exp == 0)
-        cout << "No match found!" << endl;
-    else if (exp == 1)
-        cout << "Unable to land... Gas planet!" << endl;
-    else if (exp == 2)
-        cout << "Spaceship landed! Its a terrestrial planet! But not habitable!" << endl;
-    else if (exp == 3)
-        cout << "Spaceship landed! Its a terrestrial planet! It is habitable!" << endl;
-        
-
-    delete C_ptr;
-    delete D_ptr;
+    //Display galaxy
+    int plan = milky_way.display_all();
+    cout << plan << " planets total!" << endl << endl;  
+    int hab = milky_way.display_all_hab_planets();
+    cout << hab << " planets habitable total!" << endl << endl;  
 
     return 0;
 }

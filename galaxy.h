@@ -78,13 +78,16 @@ class galaxy
         galaxy(const galaxy & to_copy);
         ~galaxy();
 
+        int load_file(const char filename[]);
         int add_solar_system(const solar_system & to_add);
         int display_all(void);
         int display_all_hab_planets(void);
-        int explore_planet(char * sun_name, char * planet_name);
+//        int explore_planet(char * sun_name, char * planet_name);
 
     private:
         solar_system * galaxy_array;    //Dynamic array of solar systems
         int galaxy_array_size;
         int num_solar_sys;
+
+        int extract_planets(char * sun_name, char * all_planets, solar_system * sol_sys);
 };

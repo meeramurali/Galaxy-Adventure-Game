@@ -647,35 +647,191 @@ galaxy::~galaxy()
 
 //Adds a new solar system into first available spot in array
 //INPUT: 1 argument: solar system object to add
-//OUTPUT: return type: int (-1 - failure, array is full, 
-//0 or positive values - no. of planets copied)
+//OUTPUT: return type: int (0 - failure, array is full, 
+//1 - success
 int galaxy::add_solar_system(const solar_system & to_add)
 {
     //Check if array is full
     if (num_solar_sys == galaxy_array_size)
-        return -1;
+        return 0;
 
     //Copy argument solar system into array
     //num_solar_sys is the next non-empty index
     if (galaxy_array[num_solar_sys].copy_solar_system(to_add) > -1)
         ++num_solar_sys;
 
-    return num_solar_sys;
+    return 1;
 } 
 
 
 
+//Displays all solar systems and their planets
+//INPUT: no arguments
+//OUTPUT: return type: int (total number of planets)
+int galaxy::display_all(void)
+{
+    int displayed = 0;
+
+    for (int i = 0; i < num_solar_sys; ++i)
+        displayed += galaxy_array[i].display();
+
+    return displayed;
+}
 
 
 
+int galaxy::display_all_hab_planets(void)
+{
+    int displayed = 0;
+
+    for (int i = 0; i < num_solar_sys; ++i)
+        displayed += galaxy_array[i].display_habitable_planets();
+
+    return displayed;
+}
 
 
 
+//Loads galaxy from file
+int galaxy::load_file(const char filename[])
+{
+    solar_system * new_sol_sys;
+    char sun_name[101];      //Temporary variable to read in sun name
+    char all_planets[801];   //Temporary variable to read in planet name
+    int sol_sys_added = 0;
+    ifstream in_file;
+   
+    if (!galaxy_array)
+        return -1;
+ 
+    //Connect to particular file
+    in_file.open(filename);
+
+    //If unable to find file
+    if (!in_file)
+        return 0;
+
+    //If connected...
+    else
+    {
+        //Attempt to read first piece of data (event name) 
+        in_file.get(sun_name, 101, '|');
+        in_file.ignore(1000, '|');
+
+        //Repeat until end of file or not connected to file
+        while (in_file && !in_file.eof())
+        {
+            //Read in all planets...
+            in_file.get(all_planets, 801, '\n');
+            in_file.ignore(1000, '\n');
+
+            //Create solar system with read in details
+            new_sol_sys = new solar_system(sun_name);
+
+            //Extract individual planets separated by comma 
+            //and insert into solar system
+            if (extract_planets(sun_name, all_planets, new_sol_sys))
+            {
+                //Add solar system into galaxy
+                if (add_solar_system(* new_sol_sys))
+                    ++sol_sys_added;
+            }
+
+            //Reset solar system
+            delete new_sol_sys;
+            new_sol_sys = NULL;
+
+            //Prime the pump for next read in
+            in_file.get(sun_name, 101, '|');
+            in_file.ignore(100, '|');
+        }
+        
+        //Close file and clear file variable
+        in_file.close();
+        in_file.clear();
+    }
+    
+    return sol_sys_added;
+}
 
 
 
+int galaxy::extract_planets(char * sun_name, char * all_planets, solar_system * sol_sys)
+{
+    planet * new_planet = NULL;
+    char planet_name[100];         //Extracted planet name
+    char * dest = planet_name;     //to traverse extracted word
+    int size = 0;           //Length of all keys array
+    int index = 0;          //Loop variable -  array index
+    int num_planets = 0;      //Number of planets extracted
+    int timer = 0;          //To ignore any whitespace at the beginning
+    int type = 0;
+   
+    if (!all_planets||!sol_sys)
+        return 0;
 
+    size = strlen(all_planets);
+ 
+    while (index <= size)
+    {
+        //Copy character if not comma or terminating null
+        if (all_planets[index] != ',' && all_planets[index] != '\0')
+        {
+            //Get type of planet
+            if (!timer)
+            {
+                if (all_planets[index] == '0')
+                    type = 0;
+                else if (all_planets[index] == '1')
+                    type = 1;
+                
+                ++index;
+                ++timer;
+            }
 
+            //copy character into destination array
+            else
+            {
+                * dest = all_planets[index];
+                ++dest;
+                ++index;
+                ++timer;
+            }
+        }
 
+        //If comma - end of word
+        else 
+        {
+            //terminate word with null character
+            * dest = '\0';
+
+            //Increment index
+            ++index;
+
+            //Reset timer
+            timer = 0;        
+
+            //Create planet with extracted name and type
+            if (type == 0)
+                new_planet = new gas_planet(planet_name, sun_name);
+            else if (type == 1)
+                new_planet = new terr_planet(planet_name, sun_name);
+
+            //Add planet to solar system
+            if (sol_sys->add_planet(new_planet))
+                ++num_planets;
+
+            //Reset planet name
+            strcpy(planet_name, "");
+            dest = planet_name;
+
+            //Reset temporary planet
+            delete new_planet;
+            new_planet = NULL;
+        }
+    }
+    
+    return num_planets;
+}
 
 
