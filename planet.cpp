@@ -43,8 +43,8 @@ const int ATMOS_MIN_DIST = 30;      //Min distance from sun for atmosphere to ex
 const int HABIT_MIN_DIST = 60;      //Optimal distance for habitability - lower limit
 const int HABIT_MAX_DIST = 200;     //Optimal distance for habitability - upper limit
 
-const int SIZE_FACTOR = 0.8;
-const int MOONS_FACTOR = 5;
+const float SIZE_FACTOR = 0.15;        //To calculate fuel cost to visit a planet
+const float MOONS_FACTOR = 5;         //To calculate fuel cost to visit a planet
 
 
 
@@ -230,14 +230,17 @@ int planet::get_dist(void)
 }
 
 
+
 //Compares argument with planet name
+//INPUT: name to match
+//OUTPUT: true/false (match/no match)
 bool planet::find_planet(char * to_match)
 {
-    bool result = false;
-    int to_match_len = strlen(to_match);
-    int name_len = strlen(name);
-    char * to_match_lower = new char[to_match_len + 1];
-    char * name_lower = new char[name_len + 1];
+    bool result = false;                //value to return
+    int to_match_len = strlen(to_match);//length of name to match
+    int name_len = strlen(name);        //length of current name
+    char * to_match_lower = new char[to_match_len + 1]; //to convert to lower case
+    char * name_lower = new char[name_len + 1];         //to convert to lower case
 
     //convert to lower case
     for (int i = 0; i < to_match_len; ++i)
@@ -271,6 +274,8 @@ bool planet::find_planet(char * to_match)
 
 
 //Sets random position in range 0 - 359 degrees angle
+//INPUT: no arguments
+//OUTPUT: return type: int (orbit position)
 int planet::set_orbit_pos(void)
 {
     struct timeval to_seed;     //To get microseconds field of current time
@@ -297,19 +302,27 @@ int planet::get_orbit_pos(void)
 
 
 //Returns fuel cost to visit planet based on size and number of moons
+//INPUT: no arguments
+//OUTPUT: fuel cost (int)
 int planet::calculate_fuel_cost(void)
 {
+    //Fuel cost is a function of size (gravitational pull) and
+    //number of moons (nearby moons also exert gravitational pull)
     return (SIZE_FACTOR * size) + (MOONS_FACTOR * num_moons);
 }
 
 
 
 //Displays name of planet
+//INPUT: no arguments
+//OUTPUT; 0/1 (failure/success)
 int planet::display_name(void)
 {
+    //null data member
     if (!name)
         return 0;
 
+    //display name
     cout << "\t" << name << endl;
     return 1;
 }

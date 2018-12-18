@@ -74,7 +74,7 @@ class solar_system      //Manages a solar-system - contains a CLL of nodes which
         node * rear;   //rear pointer to cll of planet nodes
 
         int remove_all(node * & rear, node * & fix_rear);            //Removes all nodes in CLL recursively
-        int copy_cll(node * & head, node * & fix_head, node * src_head, node * src_rear, int & copied);
+        int copy_cll(node * & head, node * & fix_head, node * src_head, node * src_rear, int & copied); //Copies CLL recursively
         int add_planet(node * & head, planet * to_add);        //Add new planet in sorted order
                                                                                      //to CLL - recursively
         int display_all_planets(node * head);                        //Displays all nodes in CLL - recursively

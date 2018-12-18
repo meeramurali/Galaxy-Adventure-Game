@@ -1,4 +1,4 @@
-//Filename: prog1.cpp
+//Filename: prog2.cpp
 
 //Name:     Meera Murali
 //Email:    mmurali@pdx.edu
@@ -30,8 +30,8 @@
 
 //Constants
 const char FILENAME[] = "galaxy.txt";       //Filename to load data from
-const int TOT_SOL_SYS = 2;
-const int FUEL_FULL = 500;
+const int TOT_SOL_SYS = 2;                  //To allocate galaxy array
+const int FUEL_FULL = 500;                  //Initial fuel value
 
 
 
@@ -48,11 +48,11 @@ int main()
     int total_planets = 0;   //Total number of planets in galaxy
     int total_sol_sys = 0;   //Total solar systems in galaxy
     int total_hab = 0;       //total habitable planets in galaxy
-    spaceship explorer(FUEL_FULL, TOT_SOL_SYS);
-    int f_lvl = FUEL_FULL;
-    char * sol_sys_choice = NULL;
-    int result = -7;
-    bool game_over = false;
+    spaceship explorer(FUEL_FULL, TOT_SOL_SYS);     //Spaceship object
+    int f_lvl = FUEL_FULL;                          //current fuel value
+    char * sol_sys_choice = NULL;                   //To read in user selection for solar system to visit
+    int result = -7;                     //result of explore operation
+    bool game_over = false;              //flag if out of fuel or habitable planet found
 
     //Load galaxy
     num_loaded = explorer.load_file(FILENAME);
@@ -109,6 +109,7 @@ int main()
             else
                 cout << "\n*** No solar systems loaded! ***" << endl;
 
+            //Delete temporary variable
             if (sol_sys_choice)
             {
                 delete [] sol_sys_choice;
@@ -124,7 +125,7 @@ int main()
         else if (menu_choice == 'b')
         {
             //Explore a planet
-            //Prompt user based on result
+            //Prompt user based on result for each case
             cout << "\n\nPlanets in current solar system: " << endl;
             result = explorer.explore_a_planet(f_lvl);
 

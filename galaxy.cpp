@@ -230,6 +230,8 @@ int node::calculate_fuel_cost(void)
 
 
 //Displays planet's name
+//INPUT: no arguments
+//OUTPUT: return type: int (0/1 - failure/success)
 int node::display_planet_name(void)
 {
     return a_planet->display_name();
@@ -286,8 +288,8 @@ solar_system::solar_system(const solar_system & to_copy)
 //0 - sun copied, no planets to copy, positive value - number of planets copied)
 int solar_system::copy_solar_system(const solar_system & to_copy)
 {
-    int copied = 0;
-    node * head = NULL;
+    int copied = 0;         //number of nodes copied
+    node * head = NULL;     //temporary pointer to first node in list
 
     //Flag failure if argument object has no sun name or planets
     if (!to_copy.sun || !to_copy.rear)
@@ -346,7 +348,7 @@ solar_system::~solar_system()
 //OUTPUT: return type: int (number of nodes removed)
 int solar_system::remove_all(node * & head, node * & fix_rear)
 {
-    int removed = 0;
+    int removed = 0;    //number of nodes removed
 
     //Base case
     if (!fix_rear)
@@ -390,21 +392,27 @@ int solar_system::copy_cll(node * & head, node * & fix_head, node * src_head, no
     //last node
     if (src_head == src_rear)
     {
+        //copy last node
         head = new node (* src_head);
         head->go_next() = fix_head;
+
+        //Update rear
         rear = head;
 
         return ++copied;
     }
 
+    //Copy current node
     head = new node (* src_head);
     head->go_next() = NULL;
 
+    //Update fix_head after copying first node
     if (!copied)
         fix_head = head;
 
     ++copied;
 
+    //Recursive call to copy next node
     return copy_cll(head->go_next(), fix_head, src_head->go_next(), src_rear, copied);
 }
 
@@ -448,12 +456,16 @@ int solar_system::add_planet(node * & head, planet * to_add)
     //Base case - last node
     if (head == rear)
     {
+        //If last node's orbit pos is greater than or equal to new node's
+        //insert before last node
         if (head->is_greater_or_equal_orbit_pos(* temp))
         {
             temp->connect_next(rear);
             head = temp;
         }
 
+        //If last node's orbit pos is lesser than new node's
+        //insert after last node, and update rear pointer
         else
         {
             temp->connect_next(rear->go_next());
@@ -602,11 +614,11 @@ int solar_system::find_sun(char * sun_to_match)
     if (!sun_to_match)
         return -1;
 
-    bool result = false;
-    int sun_to_match_len = strlen(sun_to_match);
-    int sun_len = strlen(sun);
-    char * sun_to_match_lower = new char[sun_to_match_len + 1];
-    char * sun_lower = new char[sun_len + 1];
+    bool result = false;            //Value to return 
+    int sun_to_match_len = strlen(sun_to_match);    //length of sun name to match
+    int sun_len = strlen(sun);                      //length of current sun name
+    char * sun_to_match_lower = new char[sun_to_match_len + 1]; //To convert to lowercase
+    char * sun_lower = new char[sun_len + 1];       //to convert to lower case
 
     //convert to lower case
     for (int i = 0; i < sun_to_match_len; ++i)
@@ -627,7 +639,6 @@ int solar_system::find_sun(char * sun_to_match)
         delete [] sun_to_match_lower;
         sun_to_match_lower = NULL;
     }
-
     if (sun_lower)
     {
         delete [] sun_lower;
@@ -710,8 +721,11 @@ int solar_system::explore_planet(char * planet_name, int & fuel_cost)
 
 
 //Displays only planet names
+//INPUT: no arguments
+//OUTPUT: return type: int (number of planets displayed)
 int solar_system::display_planet_names(void)
 {
+    //Empty list
     if (!rear)
         return 0;
 
@@ -725,7 +739,7 @@ int solar_system::display_planet_names(void)
 //OUTPUT: return type: int (total number of planets)
 int solar_system::display_planet_names(node * head)
 {
-    int displayed = 0;
+    int displayed = 0;  //total number of planets
 
     //Base case
     if (head == rear)
@@ -747,14 +761,19 @@ int solar_system::display_planet_names(node * head)
 
 
 //Displays sun name
+//INPUT: no arguments
+//OUTPUT: return type: int (0/1 - failure/success)
 int solar_system::display_sun(void)
 {
+    //Null data member
     if (!sun)
         return 0;
 
+    //Display sun name
     cout << "\t" << sun << endl;
     return 1;
 }
+
 
 
 //Default constructor - initializes all data members to zero equivalent
@@ -1061,6 +1080,8 @@ int galaxy::extract_planets(char * sun_name, char * all_planets, solar_system * 
 
 
 //Displays sun name for each solar system        
+//INPUT: no arguments
+//OUTPUT: return type: int (total number of solar systems)
 int galaxy::display_all_suns(void)
 {
     int displayed = 0;      //Total number of solar systems
@@ -1074,27 +1095,36 @@ int galaxy::display_all_suns(void)
 
 
 
-//Default constructor
+//Default constructor - initializes all data members to zero equivalent
+//INPUT: no arguments
+//OUTPUT: no return value
 spaceship::spaceship(): fuel(0), current_solar_sys(-1) {}
 
 
 
 //Constructor with arguments
+//INPUT: 1 arguments (intial fuel value, total number of solar systems)
+//OUTPUT: no return value
 spaceship::spaceship(int full_fuel, int num_sol_sys): galaxy(num_sol_sys), fuel(full_fuel), current_solar_sys(-1) {}
 
 
 
 //Sets new value for current solar system index
+//INPUT: 1 argument: a sun name to match
+//OUTPUT: return type: int (-1 - null argument, 0/1 - failure/success)
 int spaceship::select_solar_sys(char * sun_name_to_match)
 {
-    bool found = false;
-    int index = -1;
+    bool found = false;     //Flag if match is found
+    int index = -1;         //Index of matching solar system
 
+    //Null argument - flag failure
     if (!sun_name_to_match)
         return -1;
 
+    //Repeat for each solar system until match found or end of array
     for (int i = 0; i < num_solar_sys && !found; ++i)
     {
+        //If match, flag as found and get index number
         if (galaxy_array[i].find_sun(sun_name_to_match) == 1)
         {
             index = i;
@@ -1102,18 +1132,30 @@ int spaceship::select_solar_sys(char * sun_name_to_match)
         }
     }
 
+    //Set current solar system index
     current_solar_sys = index;
+
     return found;
 }
 
 
 
 //Explores a selected planet if fuel > 0 in current solar system
+//and supplies updates fuel level through argument
+//INPUT: 1 argument: current fuel to update
+//OUTPUT: return type: int
+//(-6: no existing solar systems, -5: current solar system not set
+//-4: out of fuel
+//-2: null argument, -1: no planets in list, 
+//0: no match found, 1: match found, unable to land (gas planet),
+//2: match found, landed successfully (terr planet), not habitable,
+//3: match found, landed successfully (terr planet), habitable!
+//4: failure)
 int spaceship::explore_a_planet(int & current_fuel)
 {
-    int planet_fuel_cost = 0;
-    char planet_name_to_explore [50] = {'\0'};
-    int result = 4;
+    int planet_fuel_cost = 0;                   //Cost to visit matching planet
+    char planet_name_to_explore [50] = {'\0'};  //to read in name to match
+    int result = 4;                             //value to return
 
     //check if any existing solar systems
     if (!num_solar_sys)
@@ -1149,6 +1191,8 @@ int spaceship::explore_a_planet(int & current_fuel)
 
 
 //Updates fuel - deducts argument value
+//INPUT: 1 argument: value to deduct 
+//OUTPUT: return type: int (current fuel value after deduction)
 int spaceship::consume_fuel(int deduct)
 {
     fuel -= deduct;
