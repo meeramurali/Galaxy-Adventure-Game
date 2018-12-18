@@ -20,26 +20,7 @@ using namespace std;
 
 
 //Class Interfaces
-class node
-{
-    public:
-        node();
-//        node(const node & to_copy); 
-        ~node();
-
-        node *& go_next(void);
-        node *& go_prev(void);
-        void connect_next(node * connection);
-        void connect_prev(node * connection);
-
-    protected:
-        node * next;
-        node * prev;
-};
-
-
-
-class planet: public node     //Abstract base class from which 'terrestrial_planet' and 'gas_planet' are derived
+class planet     //Abstract base class from which 'terrestrial_planet' and 'gas_planet' are derived
 {
     public:
         planet();                                       //Default constructor
@@ -86,7 +67,7 @@ class terr_planet: public planet     //Manages a terrestrial planet ("is a" plan
         terr_planet();                                       //Default constructor
         terr_planet(char * planet_name, char * sun_name);    //Constructor with arguments
         terr_planet(const terr_planet & to_copy);            //Copy constructor
-        terr_planet(const planet & to_copy);            //Copy constructor
+        terr_planet(const planet * to_copy);                 //Copy constructor
 
         bool allow_landing(void);   //Always returns true to allow landing
 
@@ -104,6 +85,7 @@ class gas_planet: public planet     //Manages a gas planet ("is a" planet)
         gas_planet();                                       //Default constructor
         gas_planet(char * planet_name, char * sun_name);    //Constructor with arguments
         gas_planet(const gas_planet & to_copy);             //Copy constructor
+        gas_planet(const planet * to_copy);                //Copy constructor
 
         bool allow_landing(void);   //Always returns false to not allow landing
 

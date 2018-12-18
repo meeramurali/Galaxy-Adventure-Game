@@ -76,7 +76,161 @@ int main()
 
     delete C_ptr;
     delete D_ptr;
+/*
+    //Repeat until user wants to quit, i.e. menu choice is 'h'
+    do 
+    {  
+        //Display menu and get user choice 
+        display_menu(menu_choice);
+        
+        //If choice is 'a', load data from file
+        //Prompt user accordingly based on result
+        if (menu_choice == 'a')
+        {
+            //Load data from file 
+            if (test_graph.load_file(FILENAME))
+                cout << "\n*** Data loaded from file: " << FILENAME << " ***" <<  endl;
+            else
+                cout << "\n*** File not found! ***" << endl;
+        } 
+        
+        //If choice is 'b', insert new vertex into graph
+        //Prompt user accordingly based on result
+        else if (menu_choice == 'b')
+        {
+            //Read in name of vertex to insert
+            cout << "Enter name of trailhead/trail intersection "
+                 << "(e.g. Trailhead - Ridge Trail): ";
+            get_data(new_vertex_name);
+            
 
+            //Insert new vertex into graph
+            result = test_graph.insert_vertex(new_vertex_name);
+            if (!result)
+                cout << "\n*** Unable to insert!! ***" << endl;
+            else
+                cout << "\n*** Vertex inserted in graph ***" << endl;
+            
+            //Destroy temporary variables
+            delete [] new_vertex_name;
+        }
+        
+        //If choice is 'c', insert a new edge between two vertices
+        //Prompt user accordingly based on result
+        else if (menu_choice == 'c')
+        {
+            //Read in names of vertices to add edge between
+            cout << "Enter name of first vertex (e.g. Trailhead - Ridge Trail): ";
+            get_data(vertex_1);
+            cout << "\nEnter name of second vertex (e.g. Trailhead - Newton Road): ";
+            get_data(vertex_2);
+
+            //Read in trail name, miles and comments
+            cout << "\nEnter trail name (e.g. Ridge trail): ";
+            get_data(trail);
+            cout << "\nEnter length of trail segment in miles (e.g. 1.5): ";
+            get_data(mileage);
+            cout << "\nEnter any additional information (e.g. Dog-friendly): ";
+            get_data(trail_comments);
+            
+            //Add edge between the two vertices
+            result = test_graph.insert_edge(vertex_1, vertex_2, trail, 
+                                            mileage, trail_comments);
+            if (result == -1)
+                cout << "\n*** No matches found! ***" << endl;
+
+            else if (result > 0)
+            {
+                result = test_graph.insert_edge(vertex_2, vertex_1, trail, 
+                                                mileage, trail_comments);
+                cout << "\n*** Edge inserted between " << vertex_1 << " and " 
+                     << vertex_2 << " ***" << endl;
+            }
+
+            //Destroy temporary variables
+            delete [] vertex_1;
+            delete [] vertex_2;
+            delete [] trail;
+            delete [] mileage;
+            delete [] trail_comments;
+        }
+        
+        //If choice is 'd', display all vertices
+        //Prompt user accordingly based on result
+        else if (menu_choice == 'd')
+        {
+            //Display all vertices
+            result = test_graph.display_vertices();
+            if (!result)
+                cout << "\n*** Empty graph! Nothing to display! ***" << endl;
+
+            else
+                cout << "\n*** " << result << " vertice(s) in graph ***" << endl;
+        }
+        
+        //If choice is 'e', display all paths leading from a specific vertex
+        //Prompt user accordingly based on result
+        else if (menu_choice == 'e')
+        {
+            //Read in name of vertex
+            cout << "Enter name of vertex to display connecting vertices for "
+                 << "(e.g. Trailhead - Ridge Trail): ";
+            get_data(key_name);
+            
+            //Display all events sorted by name
+            cout << "\nPaths: " << endl;
+            result = test_graph.display_paths(key_name);
+            
+            if (result == -1)
+                cout << "None" << "\n\n*** No such vertex found! ***" << endl;
+
+            else
+                cout << "\n*** " << result << " connecting path(s) found! ***" << endl;
+
+            //Destroy temporary variables
+            delete [] key_name;
+            key_name = NULL;
+        }
+
+        //If choice is 'f', display all connecting vertices for a specific vertex
+        //Prompt user accordingly based on result
+        else if (menu_choice == 'f')
+        {
+            //Read in name of vertex
+            cout << "Enter name of vertex to display connecting vertices for "
+                 << "(e.g. Trailhead - Ridge Trail): ";
+            get_data(key_name);
+            
+            //Display all events sorted by name
+            cout << "\nConnected to: " << endl;
+            result = test_graph.display_adjacent(key_name);
+            
+            if (result == -1)
+                cout << "None" << "\n\n*** No such vertex found! ***" << endl;
+
+            else
+                cout << "\n*** " << result << " connecting vertice(s) found! ***" << endl;
+
+            //Destroy temporary variables
+            delete [] key_name;
+            key_name = NULL;
+        }
+
+        //If choice is 'g', display all vertices and their respective connections
+        //Prompt user accordingly based on result
+        else if (menu_choice == 'g')
+        {
+            //Display all vertices and connections
+            result = test_graph.display_all();
+            if (!result)
+                cout << "\n*** Empty graph! Nothing to display! ***" << endl;
+
+            else
+                cout << "\n*** " << result << " vertice(s) in graph ***" << endl;
+        }
+    }
+    while (menu_choice != 'h'); //Stop if choice is 'h'
+*/
     return 0;
 }
 

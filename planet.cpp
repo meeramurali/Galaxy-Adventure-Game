@@ -42,60 +42,6 @@ const int HABIT_MAX_DIST = 200;
 //zero equivalent
 //INPUT: no arguments
 //OUTPUT: no return value
-node::node(): next(NULL), prev(NULL) {}
-
-
-
-//Destructor - releases all dynamic memory
-//INPUT: no arguments
-//OUTPUT: no return value
-node::~node()
-{
-    next = NULL;
-    prev = NULL;
-}
-
-
-
-node *& node::go_next(void)
-{
-    return next;
-}
-
-
-
-//Returns previous pointer by reference
-node *& node::go_prev(void)
-{
-    return prev;
-}
-
-
-
-//Sets next pointer to point to same node as argument
-void node::connect_next(node * connection)
-{
-    next = connection;     
-}
-
-
-
-//Sets prev pointer to point to same node as argument
-void node::connect_prev(node * connection)
-{
-    prev = connection;
-}
-
-
-
-
-
-
-
-//Default constructor - initializes all data members to their
-//zero equivalent
-//INPUT: no arguments
-//OUTPUT: no return value
 planet::planet()
 {
     //Initialize all data members
@@ -298,6 +244,15 @@ terr_planet::terr_planet(const terr_planet & to_copy): planet(to_copy)
 }
 
 
+
+//Copy constructor
+terr_planet::terr_planet(const planet * to_copy): planet(* to_copy)
+{
+    size = set_size();
+    dist = set_distance();
+    num_moons = set_moons();
+}
+
     
 
 //Checks if planet allows landing 
@@ -391,6 +346,16 @@ gas_planet::gas_planet(char * planet_name, char * sun_name): planet(planet_name,
 //INPUT: 1 argument: A gas_planet class object to copy
 //OUTPUT: no return value
 gas_planet::gas_planet(const gas_planet & to_copy): planet(to_copy)
+{
+    size = set_size();
+    dist = set_distance();
+    num_moons = set_moons();
+}
+
+
+
+//Copy constructor
+gas_planet::gas_planet(const planet * to_copy): planet(* to_copy)
 {
     size = set_size();
     dist = set_distance();
