@@ -6,13 +6,21 @@
 //Program:  1
 //Date:     07/14/2017
 
-//This program manages the planet class.........
+//This program implements the member functions of classes,
+//'node', 'solar_system' and 'galaxy'. The galaxy has been implemented 
+//as a dynamically allocated array of solar system objects. Each solar
+//system contains a sun and a doubly linked list (DLL) of planets arranged
+//in sorted order of the planets' distance from the sun. The 'node' class
+//manages a single node of the DLL, which contains a pointer to a 'planet'.
+//Since 'planet' is an abstract base class from which the planet types (terrestrial, 
+//gas planets) have been derived, each node's pointer can be set to point to
+//any type of planet.
 
 #include "galaxy.h"
 
 
 
-//Default constructor
+//Default constructor - Sets all data members to zero equivalent
 //INPUT: no arguments
 //OUTPUT: no return value
 node::node(): a_planet(NULL), next(NULL), prev(NULL) {}
@@ -25,6 +33,7 @@ node::node(): a_planet(NULL), next(NULL), prev(NULL) {}
 node::node(planet * to_copy)
 {
     //Check if planet to copy is terrestrial or gas
+    //Create new planet accordingly
     if (to_copy)
     {
         if (to_copy->allow_landing())
@@ -43,24 +52,27 @@ node::node(planet * to_copy)
 
 
 
-//Copy constructor
+//Copy constructor - copies argument node object
 //INPUT: 1 argument: a node to copy
 //OUTPUT: no return type
 node::node(const node & to_copy)
 {
+    //If node to copy has no planet
     if (!to_copy.a_planet)
         a_planet = NULL;
 
     else
     {
         //Check if planet to copy is terrestrial or gas
+        //Create new planet in node accordingly
         if (to_copy.a_planet->allow_landing() == 1)
             a_planet = new terr_planet(to_copy.a_planet);
 
         else 
             a_planet = new gas_planet(to_copy.a_planet);
     }
-    
+   
+    //Initialize node pointers to null 
     next = prev = NULL;
 }
 
@@ -71,6 +83,7 @@ node::node(const node & to_copy)
 //OUTPUT: no return value
 node::~node()
 {
+    //Delete planet in node
     if (a_planet)
     {
         delete a_planet;
@@ -80,6 +93,9 @@ node::~node()
 
 
 
+//Returns the node's next pointer by reference
+//INPUT: no arguments
+//OUTPUT: node's next pointer by reference
 node *& node::go_next(void)
 {
     return next;
@@ -87,7 +103,9 @@ node *& node::go_next(void)
 
 
 
-//Returns previous pointer by reference
+//Returns the node's previous pointer by reference
+//INPUT: no arguments
+//OUTPUT: node's previous pointer by reference
 node *& node::go_prev(void)
 {
     return prev;
@@ -96,17 +114,23 @@ node *& node::go_prev(void)
 
 
 //Sets next pointer to point to same node as argument
+//INPUT: 1 argument: location to set next pointer to 
+//OUTPUT: no return value
 void node::connect_next(node * connection)
 {
-    next = connection;     
+    next = connection;   
+    return;  
 }
 
 
 
 //Sets prev pointer to point to same node as argument
+//INPUT: 1 argument: location to set previous pointer to 
+//OUTPUT: no return value
 void node::connect_prev(node * connection)
 {
     prev = connection;
+    return;
 }
 
 
@@ -117,9 +141,11 @@ void node::connect_prev(node * connection)
 //1 - success)
 int node::display_planet(void)
 {
+    //If planet pointer is null, flag failure
     if (!a_planet)
         return -1;
 
+    //Otherwise display planet
     else
         return a_planet->display();
 } 
@@ -132,9 +158,11 @@ int node::display_planet(void)
 //(gas planet), 1 - success (terrestrial planet))
 int node::land_on_planet(void)
 {
+    //If planet pointer is null, flag failure
     if (!a_planet)
         return -1;
 
+    //Otherwise, check if planet allows landing
     else
         return a_planet->allow_landing();
 }
@@ -147,9 +175,11 @@ int node::land_on_planet(void)
 //(gas planet), 1 - habitable)
 int node::check_habitability(void)
 {
+    //If planet pointer is null, flag failure
     if (!a_planet)
         return -1;
 
+    //Otherwise, check planet's habitability
     else
         return a_planet->check_habitability();
 }
@@ -161,9 +191,11 @@ int node::check_habitability(void)
 //OUTPUT: return type: int (0 - planet pointer null, positive value - distance from sun)
 int node::get_dist(void)
 {
+    //If planet pointer is null, flag failure
     if (!a_planet)
         return 0;
 
+    //Otherwise get planet's distance from sun
     else 
         return a_planet->get_dist();
 }
@@ -175,9 +207,11 @@ int node::get_dist(void)
 //OUTPUT: return type: int (-1 - planet pointer null, 0 - no match, 1 - match found)
 int node::find_planet(char * to_match)
 {
+    //If planet pointer is null, flag failure
     if (!a_planet)
         return -1;
 
+    //Otherwise check if planet's name matches argument
     else
         return a_planet->find_planet(to_match);
 }
@@ -191,7 +225,7 @@ solar_system::solar_system(): sun(NULL), head(NULL), tail(NULL) {}
 
 
 
-//Constructor with argument
+//Constructor with argument sun name
 //INPUT: 1 argument: name of sun
 //OUTPUT: no return value
 solar_system::solar_system(char * sun_name)
@@ -211,12 +245,18 @@ solar_system::solar_system(char * sun_name)
 }
 
 
-//Copy constructor
+//Copy constructor - copies argument solar system object
+//INPUT: 1 argument: a solar system object to copy
+//OUTPUT: no return value
 solar_system::solar_system(const solar_system & to_copy)
 {
+    //Copy argument solar system's data members into current
+    //If copy unsuccessful, set data members to null
     if (copy_solar_system(to_copy) == -1)
+    {
         sun = NULL;
         head = tail = NULL;
+    }
 }
 
 
@@ -227,6 +267,7 @@ solar_system::solar_system(const solar_system & to_copy)
 //0 - sun copied, no planets to copy, positive value - number of planets copied)
 int solar_system::copy_solar_system(const solar_system & to_copy)
 {
+    //Flag failure if argument object has no sun name
     if (!to_copy.sun)
         return -1;
 
@@ -251,40 +292,6 @@ int solar_system::copy_solar_system(const solar_system & to_copy)
 
     //Copy DLL of planets from argument object
     return copy_dll(head, tail, to_copy.head);
-    
-}
-
-
-
-//Recursive function - copies DLL
-int solar_system::copy_dll(node * & dest, node * & dest_tail, node * src)
-{
-    int copied = 0;
-
-    //base case - src is null
-    if (!src)
-    {
-        dest = NULL;
-        dest_tail = NULL;
-
-        return 0;
-    }
-
-    //copy src
-    dest = new node(* src);
-    ++copied; 
- 
-    //Recursive call to next node
-    copied += copy_dll(dest->go_next(), dest_tail, src->go_next());
-    
-    //If last node, update tail
-    if (copied == 1)
-        dest_tail = dest;
-
-    else if (copied > 1)
-        (dest->go_next())->connect_prev(dest);
-
-    return copied;
 }
 
 
@@ -331,9 +338,45 @@ int solar_system::remove_all(node * & head)
 
 
 
-//Adds a new planet to the DLL
+//Recursive function - copies DLL of planets
+//INPUT: 3 arguments - destination DLL head and tail, source DLL head
+//OUTPUT: return type: int (number of nodes copied)
+int solar_system::copy_dll(node * & dest, node * & dest_tail, node * src)
+{
+    int copied = 0;     //Number of nodes copied
+
+    //base case - src is null
+    if (!src)
+    {
+        dest = NULL;
+        dest_tail = NULL;
+
+        return 0;
+    }
+
+    //copy src
+    dest = new node(* src);
+    ++copied; 
+ 
+    //Recursive call to next node
+    copied += copy_dll(dest->go_next(), dest_tail, src->go_next());
+    
+    //If last node, update tail
+    if (copied == 1)
+        dest_tail = dest;
+
+    //Connect up previous pointers
+    else if (copied > 1)
+        (dest->go_next())->connect_prev(dest);
+
+    return copied;
+}
+
+
+
+//Wrapper - Adds a new planet to the DLL
 //INPUT: 1 argument: a planet to add
-//OUTPUT: return type: int (0 -
+//OUTPUT: return type: int (0/1 - failure/success)
 int solar_system::add_planet(planet * to_add)
 {
     int new_dist = 0;   //new planet's distance from sun
@@ -351,11 +394,14 @@ int solar_system::add_planet(planet * to_add)
 
 
 
+//Adds a new planet to the DLL - recursively
+//INPUT: 4 arguments: DLL head and tail, a planet to add, distance from sun of new planet
+//OUTPUT: return type: int (0/1 - failure/success)
 int solar_system::add_planet(node * & head, node * & tail, planet * to_add, int new_dist)
 {
 
-    node * temp = NULL;
-    int success = 0;
+    node * temp = NULL;     //Temporary node pointer to create new node
+    int success = 0;        //Value to return
 
     //Base case - head is null
     if (!head)
@@ -413,6 +459,7 @@ int solar_system::add_planet(node * & head, node * & tail, planet * to_add, int 
 //OUTPUT: return type: int (total number of planets)
 int solar_system::display(void)
 {
+    //Flag failure if no sun name
     if (!sun)
         return -1;
 
@@ -473,7 +520,7 @@ int solar_system::display_habitable_planets(void)
 //OUTPUT: return type: int (number of habitable planets)
 int solar_system::display_habitable_planets(node * head)
 {
-    int habitable = 0;
+    int habitable = 0;      //Total number of habitable planets
 
     //Base case
     if (!head)
@@ -499,9 +546,11 @@ int solar_system::display_habitable_planets(node * head)
 //OUTPUT: return type: int (-1 - null argument, 0 - no match, 1 - match found)
 int solar_system::find_sun(char * sun_to_match)
 {
+    //If null argument
     if (!sun_to_match)
         return -1;
 
+    //If sun name matches argument, flag success
     if (sun && strcmp(sun_to_match, sun) == 0)
         return 1;
         
@@ -511,14 +560,16 @@ int solar_system::find_sun(char * sun_to_match)
 
 
 
+//Explores a specific planet that matches name
+//INPUT: 1 argument: planet name to match
 //OUTPUT: return type: int (-2: null argument, -1: no planets in list, 
 //0: no match found, 1: match found, unable to land (gas planet),
 //2: match found, landed successfully (terr planet), not habitable,
 //3: match found, landed successfully (terr planet), habitable!
 int solar_system::explore_planet(char * planet_name)
 {
-    node * current = NULL;
-    bool planet_found = false;
+    node * current = NULL;      //To traverse DLL of planets
+    bool planet_found = false;  //Flag if match is found
     int result = 0;             //Value to return
 
     //If null argument, flag failure
@@ -575,7 +626,7 @@ galaxy::galaxy(): galaxy_array(NULL), galaxy_array_size(0), num_solar_sys(0) {}
 
 
 
-//Constructor with argument
+//Constructor with argument array size
 //INPUT: 1 argument: size of array
 //OUTPUT: no return value
 galaxy::galaxy(int array_size)
@@ -600,12 +651,12 @@ galaxy::galaxy(int array_size)
 
 
 
-//Copy constructor
+//Copy constructor - copies argument galaxy object
 //INPUT: 1 argument: a galaxy object to copy
 //OUTPUT: no return value
 galaxy::galaxy(const galaxy & to_copy)
 {
-    num_solar_sys = 0;
+    num_solar_sys = 0;      //Total number of solar systems copied
 
     //Copy galaxy array size and number of solar systems
     //if valid
@@ -670,8 +721,9 @@ int galaxy::add_solar_system(const solar_system & to_add)
 //OUTPUT: return type: int (total number of planets)
 int galaxy::display_all(void)
 {
-    int displayed = 0;
+    int displayed = 0;      //Total number of planets
 
+    //For each solar system, display all planets
     for (int i = 0; i < num_solar_sys; ++i)
         displayed += galaxy_array[i].display();
 
@@ -681,14 +733,16 @@ int galaxy::display_all(void)
 
 
 //Displays all solar systems and their planets
-//INPUT: no arguments
+//INPUT: 1 argument: total planets (by reference)
 //OUTPUT: return type: int (total number of planets)
 int galaxy::display_all(int & num_sol_sys)
 {
-    int displayed = 0;
+    int displayed = 0;  //Total number of planets
 
+    //Update argument
     num_sol_sys = num_solar_sys;
 
+    //For each solar system, display all planets
     for (int i = 0; i < num_solar_sys; ++i)
         displayed += galaxy_array[i].display();
 
@@ -697,10 +751,14 @@ int galaxy::display_all(int & num_sol_sys)
 
 
 
+//Displays all habitable planets in all solar systems
+//INPUT: no arguments
+//OUTPUT: return type: int (total number of habitable planets)
 int galaxy::display_all_hab_planets(void)
 {
-    int displayed = 0;
+    int displayed = 0;  //Total habitable planets
 
+    //For each solar system, display all habitable planets
     for (int i = 0; i < num_solar_sys; ++i)
         displayed += galaxy_array[i].display_habitable_planets();
 
@@ -710,14 +768,17 @@ int galaxy::display_all_hab_planets(void)
 
 
 //Loads galaxy from file
+//INPUT: 1 argument: filename to load from
+//OUTPUT: return type: int (number of solar systems loaded) 
 int galaxy::load_file(const char filename[])
 {
-    solar_system * new_sol_sys;
-    char sun_name[101];      //Temporary variable to read in sun name
-    char all_planets[801];   //Temporary variable to read in planet name
-    int sol_sys_added = 0;
-    ifstream in_file;
-   
+    solar_system * new_sol_sys;     //Temporary pointer to read each solar system
+    char sun_name[101];             //Temporary variable to read in sun name
+    char all_planets[801];          //Temporary variable to read in planet name
+    int sol_sys_added = 0;          //Value to return
+    ifstream in_file;               //File variable for input
+  
+    //Flag failure if galaxy array not yet set
     if (!galaxy_array)
         return -1;
  
@@ -751,6 +812,7 @@ int galaxy::load_file(const char filename[])
             {
                 //Add solar system into galaxy
                 if (add_solar_system(* new_sol_sys))
+                    //Increment number of solar systems loaded
                     ++sol_sys_added;
             }
 
@@ -773,22 +835,29 @@ int galaxy::load_file(const char filename[])
 
 
 
+//Extracts planet names and builds solar system
+//INPUT: 3 arguments: sun name, char array to extract planet names from, solar
+//system to build
+//OUTPUT: return type: int (number of planets added) 
 int galaxy::extract_planets(char * sun_name, char * all_planets, solar_system * sol_sys)
 {
-    planet * new_planet = NULL;
+    planet * new_planet = NULL;    //Temporary pointer to add each planet to solar system
     char planet_name[100];         //Extracted planet name
-    char * dest = planet_name;     //to traverse extracted word
-    int size = 0;           //Length of all keys array
+    char * dest = planet_name;     //to traverse extracted planet name
+    int size = 0;           //Length of all_planets array
     int index = 0;          //Loop variable -  array index
     int num_planets = 0;      //Number of planets extracted
-    int timer = 0;          //To ignore any whitespace at the beginning
-    int type = 0;
-   
-    if (!all_planets||!sol_sys)
+    int timer = 0;          //To extract planet type at beginning of each name
+    int type = 0;           //Type of planet (0 - terrestrial, 1 - gas)
+  
+    //Flag failure if null arguments 
+    if (!all_planets||!sol_sys||!sun_name)
         return 0;
 
+    //Find length of all planets array
     size = strlen(all_planets);
- 
+
+    //Traverse each character of array 
     while (index <= size)
     {
         //Copy character if not comma or terminating null

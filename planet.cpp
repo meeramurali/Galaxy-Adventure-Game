@@ -6,7 +6,14 @@
 //Program:  1
 //Date:     07/14/2017
 
-//This program manages the planet class.........
+//This program implements the member functions of the planet class and its derived types.
+//The 'planet' is an abstract base class from which the planet types (terrestrial, 
+//gas planets) have been derived.
+//Two types of planets have been implemented:
+//TERRESTRIAL planets - Allow landing since they have solid surfaces, have zero or few
+//moons, a smaller range of size (radius), and closer to the sun
+//GAS planets - Do not allow landing since they are gaseous, have a large number of
+//moons, larger range of size (radius), amd further away from the sun
 
 
 
@@ -15,26 +22,26 @@
 
 
 //Constants
-const int TERR_MIN_SIZE = 1;
-const int TERR_MAX_SIZE = 5;
-const int GAS_MIN_SIZE = 10;
-const int GAS_MAX_SIZE = 50;
+const int TERR_MIN_SIZE = 1;        //Terrestrial planet min radius (thousand miles)
+const int TERR_MAX_SIZE = 5;        //Terrestrial planet max radius (thousand miles)
+const int GAS_MIN_SIZE = 10;        //Gas planet minimum radius (thousand miles)
+const int GAS_MAX_SIZE = 50;        //Gas planet minimum radius (thousand miles)
 
-const int TERR_MIN_DIST = 20;
-const int TERR_MAX_DIST = 300;
-const int GAS_MIN_DIST = 500;
-const int GAS_MAX_DIST = 1000;
+const int TERR_MIN_DIST = 20;       //Terrestrial planet min distance from sun (million miles)
+const int TERR_MAX_DIST = 300;      //Terrestrial planet max distance from sun (million miles)
+const int GAS_MIN_DIST = 500;       //Gas planet min distance from sun (million miles)
+const int GAS_MAX_DIST = 1000;      //Gas planet max distance from sun (million miles)
 
-const int TERR_MIN_MOONS = 0;
-const int TERR_MAX_MOONS = 3;
-const int GAS_MIN_MOONS = 15;
-const int GAS_MAX_MOONS = 80;
+const int TERR_MIN_MOONS = 0;       //Terrestrial planet min number of moons
+const int TERR_MAX_MOONS = 3;       //Terrestrial planet max number of moons
+const int GAS_MIN_MOONS = 15;       //Gas planet max number of moons
+const int GAS_MAX_MOONS = 80;       //Gas planet max number of moons
 
-const int ATMOS_MIN_SIZE = 2;
-const int ATMOS_MIN_DIST = 30;
+const int ATMOS_MIN_SIZE = 2;       //Min size of planet for atmosphere to exist (thousand miles)
+const int ATMOS_MIN_DIST = 30;      //Min distance from sun for atmosphere to exist (million miles)
 
-const int HABIT_MIN_DIST = 60;
-const int HABIT_MAX_DIST = 200;
+const int HABIT_MIN_DIST = 60;      //Optimal distance for habitability - lower limit
+const int HABIT_MAX_DIST = 200;     //Optimal distance for habitability - upper limit
 
 
 
@@ -85,6 +92,8 @@ planet::planet(char * planet_name, char * sun_name)
 //OUTPUT: no return value
 planet::planet(const planet & to_copy)
 {
+    
+    //Copy argument data members (if not NULL) into name and sun 
     if (to_copy.name)
     {
         name = new char [strlen(to_copy.name) + 1];
@@ -101,6 +110,7 @@ planet::planet(const planet & to_copy)
     else
         sun = NULL;
 
+    //Copy size (radius), distance from sun and number of moons
     size = to_copy.size;
     dist = to_copy.dist;
     num_moons = to_copy.num_moons;
@@ -113,6 +123,7 @@ planet::planet(const planet & to_copy)
 //OUTPUT: no return value
 planet::~planet()
 {
+    //Release allocated memory for name and sun
     if (name)
     {
         delete [] name;
@@ -143,6 +154,7 @@ int planet::display(void)
     //Display all data member values
     cout << "\n\tPlanet name: " << name << endl;
 
+    //Determine planet type 
     if (allow_landing())
         cout << "\tType: Terrestrial" << endl;
     else
@@ -152,6 +164,8 @@ int planet::display(void)
          << "\tSize: " << size << " thousand miles radius" << endl
          << "\tDistance from sun: " << dist << " million miles" << endl
          << "\tNumber of moons: " << num_moons << endl;
+
+    //Display habitability
     if (check_habitability())
         cout << "\tHabitable!" << endl;
     else
@@ -208,6 +222,7 @@ int planet::get_dist(void)
 //Compares argument with planet name
 bool planet::find_planet(char * to_match)
 {
+    //Flag if planet name matches argument
     if (to_match && strcmp(to_match, name) == 0)
         return true;
 
@@ -222,6 +237,8 @@ bool planet::find_planet(char * to_match)
 //OUTPUT: no return value
 terr_planet::terr_planet() 
 {
+    //Randomly generate values for size, distance from sun and number of moons
+    //based on the type (terrestrial)
     size = set_size();
     dist = set_distance();
     num_moons = set_moons();
@@ -235,6 +252,8 @@ terr_planet::terr_planet()
 //OUTPUT: no return value
 terr_planet::terr_planet(char * planet_name, char * sun_name): planet(planet_name, sun_name)
 {
+    //Randomly generate values for size, distance from sun and number of moons
+    //based on the type (terrestrial)
     size = set_size();
     dist = set_distance();
     num_moons = set_moons();
@@ -246,16 +265,12 @@ terr_planet::terr_planet(char * planet_name, char * sun_name): planet(planet_nam
 //Copy constructor - copies data members of argument object into current object
 //INPUT: 1 argument: A terr_planet class object to copy
 //OUTPUT: no return value
-terr_planet::terr_planet(const terr_planet & to_copy): planet(to_copy)
-{
-}
+terr_planet::terr_planet(const terr_planet & to_copy): planet(to_copy) {}
 
 
 
 //Copy constructor
-terr_planet::terr_planet(const planet * to_copy): planet(* to_copy)
-{
-}
+terr_planet::terr_planet(const planet * to_copy): planet(* to_copy) {}
 
     
 
@@ -274,7 +289,8 @@ bool terr_planet::allow_landing(void)
 //OUTPUT: return type: int (size in units of 'thousand miles radius')
 int terr_planet::set_size(void)
 {
-    struct timeval to_seed;
+    struct timeval to_seed;     //To get microseconds field of current time
+                                //to seed rand()
 
     //Seed rand with usec field of time
     gettimeofday(&to_seed, NULL);
@@ -291,7 +307,8 @@ int terr_planet::set_size(void)
 //OUTPUT: return type: int (dist in units of 'thousand miles radius')
 int terr_planet::set_distance(void)
 {
-    struct timeval to_seed;
+    struct timeval to_seed;     //To get microseconds field of current time
+                                //to seed rand()
 
     //Seed rand with usec field of time
     gettimeofday(&to_seed, NULL);
@@ -308,7 +325,8 @@ int terr_planet::set_distance(void)
 //OUTPUT: return type: int (number of moons)
 int terr_planet::set_moons(void)
 {
-    struct timeval to_seed;
+    struct timeval to_seed;     //To get microseconds field of current time
+                                //to seed rand()
 
     //Seed rand with usec field of time
     gettimeofday(&to_seed, NULL);
@@ -325,6 +343,8 @@ int terr_planet::set_moons(void)
 //OUTPUT: no return value
 gas_planet::gas_planet()
 {
+    //Randomly generate values for size, distance from sun and number of moons
+    //based on the type (gas)
     size = set_size();
     dist = set_distance();
     num_moons = set_moons();
@@ -338,6 +358,8 @@ gas_planet::gas_planet()
 //OUTPUT: no return value
 gas_planet::gas_planet(char * planet_name, char * sun_name): planet(planet_name, sun_name)
 {
+    //Randomly generate values for size, distance from sun and number of moons
+    //based on the type (gas)
     size = set_size();
     dist = set_distance();
     num_moons = set_moons();
@@ -349,16 +371,14 @@ gas_planet::gas_planet(char * planet_name, char * sun_name): planet(planet_name,
 //Copy constructor - copies data members of argument object into current object
 //INPUT: 1 argument: A gas_planet class object to copy
 //OUTPUT: no return value
-gas_planet::gas_planet(const gas_planet & to_copy): planet(to_copy)
-{
-}
+gas_planet::gas_planet(const gas_planet & to_copy): planet(to_copy) {}
 
 
 
-//Copy constructor
-gas_planet::gas_planet(const planet * to_copy): planet(* to_copy)
-{
-}
+//Copy constructor - copies argument planet
+//INPUT: 1 argument: a planet pointer set to any type of planet
+//OUTPUT: no return value
+gas_planet::gas_planet(const planet * to_copy): planet(* to_copy) {}
 
 
 
@@ -377,7 +397,8 @@ bool gas_planet::allow_landing(void)
 //OUTPUT: return type: int (size in units of 'thousand miles radius')
 int gas_planet::set_size(void)
 {
-    struct timeval to_seed;
+    struct timeval to_seed;     //To get microseconds field of current time
+                                //to seed rand()
 
     //Seed rand with usec field of time
     gettimeofday(&to_seed, NULL);
@@ -394,7 +415,8 @@ int gas_planet::set_size(void)
 //OUTPUT: return type: int (dist in units of 'thousand miles radius')
 int gas_planet::set_distance(void)
 {
-    struct timeval to_seed;
+    struct timeval to_seed;     //To get microseconds field of current time
+                                //to seed rand()
 
     //Seed rand with usec field of time
     gettimeofday(&to_seed, NULL);
@@ -411,7 +433,8 @@ int gas_planet::set_distance(void)
 //OUTPUT: return type: int (number of moons)
 int gas_planet::set_moons(void)
 {
-    struct timeval to_seed;
+    struct timeval to_seed;     //To get microseconds field of current time
+                                //to seed rand()
 
     //Seed rand with usec field of time
     gettimeofday(&to_seed, NULL);

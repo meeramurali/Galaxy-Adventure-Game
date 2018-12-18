@@ -6,89 +6,99 @@
 //Program:  1
 //Date:     07/14/2017
 
-//This program manages the planet class.........
+//This program manages the classes, 'node', 'solar_system' and 'galaxy'. 
+//The galaxy has been implemented as a dynamically allocated array of solar 
+//system objects. Each solar system contains a sun and a doubly linked list (DLL) 
+//of planets arranged in sorted order of the planets' distance from the sun. 
+//The 'node' class manages a single node of the DLL, which contains a pointer to a 'planet'.
+//Since 'planet' is an abstract base class from which the planet types (terrestrial, 
+//gas planets) have been derived, each node's pointer can be set to point to
+//any type of planet.
 
 #include "planet.h"
 
 
 
 //Class Interfaces
-class node
+class node              //Manages a single node of a DLL - contains pointer to a planet
 {
     public:
-        node();
-        node(planet * to_copy);
-        node(const node & to_copy); 
-        ~node();
+        node();                     //Default constructor - initializes data members to zero equivalent
+        node(planet * to_copy);     //Constructor with a planet to copy
+        node(const node & to_copy); //Copy constructor - copied argument node
+        ~node();                    //Destructor - releases dynamic memory
 
-        node *& go_next(void);
-        node *& go_prev(void);
-        void connect_next(node * connection);
-        void connect_prev(node * connection);
+        node *& go_next(void);      //Returns node's next pointer by reference
+        node *& go_prev(void);      //Returns node's previous pointer by reference
+        void connect_next(node * connection);   //Sets next pointer to argument location
+        void connect_prev(node * connection);   //Sets previous pointer to argument location
 
-        int display_planet(void);
-        int land_on_planet(void);
-        int check_habitability(void);
-        int get_dist(void);
-        int find_planet(char * to_match);
+        int display_planet(void);           //Displays all planet details
+        int land_on_planet(void);           //Allows landing or not based on planet type
+        int check_habitability(void);       //Checks habitability of planet in node
+        int get_dist(void);                 //Returns distance from sun of planet in node
+        int find_planet(char * to_match);   //Compares planet name with argument
 
     protected:
-        planet * a_planet;
-        node * next;
-        node * prev;
+        planet * a_planet;      //pointer to a planet of any type
+        node * next;            //Pointer to next node
+        node * prev;            //Pointer to previous node
 };
 
 
 
-class solar_system
+class solar_system      //Manages a solar-system - contains a DLL of nodes which each point to a planet
 {
     public:
-        solar_system();
-        solar_system(char * sun_name);
-        solar_system(const solar_system & to_copy); 
-        ~solar_system();
+        solar_system();                             //Default constructor - initializes data members to zero equivalent
+        solar_system(char * sun_name);              //Constructor with sun name as argument
+        solar_system(const solar_system & to_copy); //Copy constructor - copies argument solar system
+        ~solar_system();                            //Destructor - release all dynamic memory
 
-        int add_planet(planet * to_add);     
-        int display(void);
-        int display_all_planets(void);
-        int display_habitable_planets(void);
-        int explore_planet(char * planet_name);
-        int find_sun(char * sun_to_match);
-        int copy_solar_system(const solar_system & to_copy);
+        int add_planet(planet * to_add);            //Adds a new planet to the DLL in order of distance from sun 
+        int display(void);                          //Displays sun and all planets
+        int display_all_planets(void);              //Displays all planets
+        int display_habitable_planets(void);        //Displays all habitable planets 
+        int explore_planet(char * planet_name);     //Explores planet with name matching arguments - checks landing
+                                                    //and habitability
+        int find_sun(char * sun_to_match);          //Compares sun name with argument
+        int copy_solar_system(const solar_system & to_copy);    //Copies data members of argument solar system
 
     private:
-        char * sun;
-        node * head;
-        node * tail;  
+        char * sun;                       //Name of the sun
+        node * head;                      //head pointer to DLL of planet nodes
+        node * tail;                      //Tail pointer to DLL of planet nodes  
 
-        int remove_all(node * & head);    //removes all nodes in dll - recursively
+        int remove_all(node * & head);                               //removes all nodes in dll - recursively
         int copy_dll(node * & dest, node * & dest_tail, node * src); //Recursive function - copies DLL
-        int add_planet(node * & head, node * & tail, planet * to_add, int new_dist);
-        int display_all_planets(node * head);
-        int display_habitable_planets(node * head);
+        int add_planet(node * & head, node * & tail, planet * to_add, int new_dist); //Add new planet in sorted order
+                                                                                     //to DLL - recursively
+        int display_all_planets(node * head);                        //Displays all nodes in DLL - recursively
+        int display_habitable_planets(node * head);                  //Displays all nodes with habitable planets - recursively
 };
 
 
 
-class galaxy
+class galaxy        //Manages an array of solar systems
 {
     public:
-        galaxy();
-        galaxy(int array_size);
-        galaxy(const galaxy & to_copy);
-        ~galaxy();
+        galaxy();                       //Default constructor - initializes all data members to zero equivalent
+        galaxy(int array_size);         //Constructor - sets array of argument size
+        galaxy(const galaxy & to_copy); //Copy constructor - copies argument galaxy object
+        ~galaxy();                      //Destructor - releases dynamic memory
 
-        int load_file(const char filename[]);
-        int add_solar_system(const solar_system & to_add);
-        int display_all(void);
-        int display_all(int & num_sol_sys);
-        int display_all_hab_planets(void);
-//        int explore_planet(char * sun_name, char * planet_name);
+        int load_file(const char filename[]);               //Loads galaxy from file
+        int add_solar_system(const solar_system & to_add);  //Adds new solar system to galaxy
+        int display_all(void);                              //Displays all solar systems in galaxy
+        int display_all(int & num_sol_sys);                 //Dislays all solar systems, supplies number of solar systems
+                                                            //through argument
+        int display_all_hab_planets(void);                  //Displays all habitable planets in all solar systems
 
     private:
         solar_system * galaxy_array;    //Dynamic array of solar systems
-        int galaxy_array_size;
-        int num_solar_sys;
+        int galaxy_array_size;          //size of array
+        int num_solar_sys;              //Number of items currently in array
 
-        int extract_planets(char * sun_name, char * all_planets, solar_system * sol_sys);
+        int extract_planets(char * sun_name, char * all_planets, solar_system * sol_sys);   //Extracts planet names from argument char array
+                                                                                            //and builds a solar system with the data
 };

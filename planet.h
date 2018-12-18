@@ -6,7 +6,15 @@
 //Program:  1
 //Date:     07/14/2017
 
-//This program manages the planet class.........
+//This program manages the planet class and its derived types.
+//The 'planet' is an abstract base class from which the planet types (terrestrial, 
+//gas planets) have been derived.
+//Two types of planets have been implemented:
+//TERRESTRIAL planets - Allow landing since they have solid surfaces, have zero or few
+//moons, a smaller range of size (radius), and closer to the sun
+//GAS planets - Do not allow landing since they are gaseous, have a large number of
+//moons, larger range of size (radius), amd further away from the sun
+
 
 #include <iostream>
 #include <cctype>
@@ -23,9 +31,9 @@ using namespace std;
 class planet     //Abstract base class from which 'terrestrial_planet' and 'gas_planet' are derived
 {
     public:
-        planet();                                       //Default constructor
-        planet(char * planet_name, char * sun_name);    //Constructor with arguments
-        planet(const planet & to_copy);                 //Copy constructor
+        planet();                                       //Default constructor - initializes data members to zero eq.
+        planet(char * planet_name, char * sun_name);    //Constructor with planet name and sun as arguments
+        planet(const planet & to_copy);                 //Copy constructor - copies argument planet object
         virtual ~planet();                              //Destructor - Releases all dynamic memory
 
         int display(void);                //Displays all planet information
@@ -37,10 +45,6 @@ class planet     //Abstract base class from which 'terrestrial_planet' and 'gas_
         int get_dist(void);               //Returns distance from sun value
         bool find_planet(char * to_match);//Compares argument with planet name
         virtual bool allow_landing(void) = 0; //'Terrestrial planets' always allow landing (return true)
-//        int calc_grav_pull();             //Calculates gravitational pull (function of size and no.
-                                          //of moons)
-//        int calc_escape_vel();            //Calculates required escape velocity for spaceship to 
-                                          //take off (based on gravitational pull)
 
     protected:
         char * name;                    //Name of the planet
@@ -64,10 +68,10 @@ class planet     //Abstract base class from which 'terrestrial_planet' and 'gas_
 class terr_planet: public planet     //Manages a terrestrial planet ("is a" planet)
 {
     public:
-        terr_planet();                                       //Default constructor
-        terr_planet(char * planet_name, char * sun_name);    //Constructor with arguments
-        terr_planet(const terr_planet & to_copy);            //Copy constructor
-        terr_planet(const planet * to_copy);                 //Copy constructor
+        terr_planet();                                       //Default constructor - initializes all data members to zero eq.
+        terr_planet(char * planet_name, char * sun_name);    //Constructor with planet and sun names as arguments
+        terr_planet(const terr_planet & to_copy);            //Copy constructor - copies argument terr_planet object
+        terr_planet(const planet * to_copy);                 //Copy constructor - copies argument planet object
 
         bool allow_landing(void);   //Always returns true to allow landing
 
@@ -82,10 +86,10 @@ class terr_planet: public planet     //Manages a terrestrial planet ("is a" plan
 class gas_planet: public planet     //Manages a gas planet ("is a" planet)
 {
     public:
-        gas_planet();                                       //Default constructor
-        gas_planet(char * planet_name, char * sun_name);    //Constructor with arguments
-        gas_planet(const gas_planet & to_copy);             //Copy constructor
-        gas_planet(const planet * to_copy);                //Copy constructor
+        gas_planet();                                       //Default constructor - initializes data members to zero eq.
+        gas_planet(char * planet_name, char * sun_name);    //Constructor with planet and sun names arguments
+        gas_planet(const gas_planet & to_copy);             //Copy constructor - copies argument gas planet object
+        gas_planet(const planet * to_copy);                //Copy constructor - copies argument planet object
 
         bool allow_landing(void);   //Always returns false to not allow landing
 
