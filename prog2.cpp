@@ -30,6 +30,8 @@
 
 //Constants
 const char FILENAME[] = "galaxy.txt";       //Filename to load data from
+const int TOT_SOL_SYS = 2;
+const int FUEL_FULL = 500;
 
 
 
@@ -46,9 +48,11 @@ int main()
     int total_planets = 0;   //Total number of planets in galaxy
     int total_sol_sys = 0;   //Total solar systems in galaxy
     int total_hab = 0;       //total habitable planets in galaxy
-    spaceship explorer(500);
-    int f_lvl = 0;
-    int result = 0;
+    spaceship explorer(FUEL_FULL, TOT_SOL_SYS);
+    int f_lvl = FUEL_FULL;
+    char * sol_sys_choice = NULL;
+    int result = -7;
+    bool game_over = false;
 
     //Load galaxy
     num_loaded = explorer.load_file(FILENAME);
@@ -58,90 +62,129 @@ int main()
     else
         cout << "\n*** File not found! ***" << endl;
 
-    //Set solar system
-    explorer.select_solar_sys(0);
-
-    do
-    {
-        //Explore a planet
-        result = explorer.explore_a_planet(f_lvl);
-
-        if (result == -6)
-            cout << "No existing solar systems" << endl;
-
-        else if (result == -5)
-            cout << "Solar system not set" << endl;
-
-        else if (result == -4)
-            cout << "Out of fuel" << endl;
-
-        else if (result == 0)
-            cout << "No match found" << endl;
-
-        else if (result == 1)
-            cout << "Unable to land spaceship; Its a gas planet!!" << endl;
-
-        else if (result == 2)
-            cout << "Landed spaceship! Its not habitable!!" << endl;
-
-        else if (result == 3)
-            cout << "Landed spaceship" << endl
-                 << "Success!! You have found a habitable planet!!" << endl;
-
-        else
-            cout << "Other" << endl;
-
-        if (f_lvl > 0)
-            cout << "Current fuel level: " << f_lvl << endl << endl;
-
-        else
-            cout << "Out of fuel! Game over!" << endl;
-    }
-    while (f_lvl > 0 && result != 3);
     
-/*
-    galaxy milky_way(2);     //A galaxy object with size of 2 solar systems
-
-    //Repeat until user wants to quit, i.e. menu choice is 'd' 
+    //Repeat until user wants to quit, i.e. menu choice is 'e' 
     do 
     {  
         //Display menu and get user choice 
         display_menu(menu_choice);
         
-        //If choice is 'a', load data from file
+        //If choice is 'a', change solar system
         //Prompt user accordingly based on result
         if (menu_choice == 'a')
         {
-            //Load file
-            num_loaded = milky_way.load_file(FILENAME);
-            if (num_loaded)
-                cout << "\n*** " << num_loaded << " solar system(s) loaded from file: " 
-                     << FILENAME << " ***" <<  endl;
+            cout << "\n\nAvailable solar systems: " << endl;
+
+            //Display all solar systems
+            if (explorer.display_all_suns())
+            {
+                //Read in choice
+                cout << "Select destination solar system - Enter a sun name (e.g. Sirius): ";
+                get_data(sol_sys_choice);
+     
+                //Set solar system
+                if (explorer.select_solar_sys(sol_sys_choice) == 1)
+                {
+                    cout << "\n*** Travelling to selected solar system.... ***" << endl;
+                    cout << ".\n.\n.\n*** Reached destination! ***" << endl;
+                }
+
+                else
+                    cout << "\n*** No match found! ***" << endl;
+            }
+            
             else
-                cout << "\n*** File not found! ***" << endl;
-        } 
+                cout << "\n*** No solar systems loaded! ***" << endl;
+
+            if (sol_sys_choice)
+            {
+                delete [] sol_sys_choice;
+                sol_sys_choice = NULL;
+            }
+
+            //Reset result
+            result = -7;
+        }
         
-        //If choice is 'b', display all solar systems
+        //If choice is 'b', explore planet in current solar system
         //Prompt user accordingly based on result
         else if (menu_choice == 'b')
         {
+            //Explore a planet
+            cout << "\n\nPlanets in current solar system: " << endl;
+            result = explorer.explore_a_planet(f_lvl);
+
+            if (result > 0)
+            {
+                cout << "\n*** Travelling to selected planet.... ***" << endl;
+                cout << ".\n.\n.\n*** Reached destination! ***" << endl;
+            }
+
+            if (result == -6)
+                cout << "*** No existing solar systems ***" << endl;
+
+            else if (result == -5)
+                cout << "*** Solar system not set - You need to first travel to a solar system! Select operation (a) ***" << endl;
+
+            else if (result == -4)
+            {
+                cout << "*** Out of fuel!! Game over!! ***" << endl;
+                game_over = true;
+            }
+
+            else if (result == 0)
+                cout << "*** No match found ***" << endl;
+
+            else if (result == 1)
+                cout << "*** Unable to land spaceship; Its a gas planet!! ***" << endl;
+
+            else if (result == 2)
+                cout << "*** Landed spaceship! Its a terrestrial planet but not habitable!! ***" << endl;
+
+            else if (result == 3)
+            {
+                cout << "*** Landed spaceship ***" << endl
+                     << "*** Success!! You have found a habitable terrestrial planet!! ***" << endl;
+                
+                game_over = true;
+            }
+
+            //Display current fuel level
+            //Flag as Game over if no fuel left
+            if (f_lvl > 0)
+                cout << "Current fuel level: " << f_lvl << endl << endl;
+
+            else
+            {
+                cout << "\n\n*** Out of fuel! Game over! ***" << endl;
+            
+                game_over = true;
+            }
+            
+            //Reset result
+            result = -7;
+        } 
+        
+        //If choice is 'c', display all solar systems
+        //Prompt user accordingly based on result
+        else if (menu_choice == 'c')
+        {
             //Display all solar systems
-            total_planets = milky_way.display_all(total_sol_sys);
+            total_planets = explorer.display_all(total_sol_sys);
             cout << endl << total_sol_sys << " solar systems!";  
             cout << endl << total_planets << " planets total!" << endl << endl;  
         }
         
-        //If choice is 'c', display all habitable planets
+        //If choice is 'd', display all habitable planets
         //Prompt user accordingly based on result
-        else if (menu_choice == 'c')
+        else if (menu_choice == 'd')
         {
             //Display all habitable planets
-            total_hab = milky_way.display_all_hab_planets();
+            total_hab = explorer.display_all_hab_planets();
             cout << endl << total_hab << " habitable planets total!" << endl << endl;  
         }
     }
-    while (menu_choice != 'd'); //Stop if choice is 'd'
-*/
+    while (menu_choice != 'e' && !game_over); //Stop if choice is 'e' or game over (no fuel)
 
     return 0;
 }
@@ -158,11 +201,12 @@ void display_menu(char & choice)
     {
         //Display menu of operations to user
         cout << "\n\nSelect operation:" << endl;
-        cout << "a. Load galaxy from file" << endl
-             << "b. Display galaxy" << endl
-             << "c. Display all habitable planets" << endl
-             << "d. Quit" << endl
-             << "Enter a letter from 'a' to 'd': ";
+        cout << "a. Travel to a different solar system" << endl
+             << "b. Explore current solar system" << endl
+             << "c. Cheat code: Display galaxy" << endl
+             << "d. Cheat code: Display all habitable planets" << endl
+             << "e. Quit" << endl
+             << "Enter a letter from 'a' to 'e': ";
 
         //Read in user response
         cin >> choice;
@@ -172,10 +216,10 @@ void display_menu(char & choice)
         choice = tolower(choice);
         
         //If choice is invalid, prompt user
-        if (!(choice >= 'a' && choice <= 'd'))
+        if (!(choice >= 'a' && choice <= 'e'))
             cout << "\n\n***Invalid entry! Try again...***" << endl;
     }
-    while (!(choice >= 'a' && choice <= 'd'));
+    while (!(choice >= 'a' && choice <= 'e'));
 
     return;
 }

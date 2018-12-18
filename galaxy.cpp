@@ -592,12 +592,39 @@ int solar_system::find_sun(char * sun_to_match)
     if (!sun_to_match)
         return -1;
 
-    //If sun name matches argument, flag success
-    if (sun && strcmp(sun_to_match, sun) == 0)
-        return 1;
-        
-    else
-        return 0;
+    bool result = false;
+    int sun_to_match_len = strlen(sun_to_match);
+    int sun_len = strlen(sun);
+    char * sun_to_match_lower = new char[sun_to_match_len + 1];
+    char * sun_lower = new char[sun_len + 1];
+
+    //convert to lower case
+    for (int i = 0; i < sun_to_match_len; ++i)
+        sun_to_match_lower[i] = tolower(sun_to_match[i]);
+    sun_to_match_lower[sun_to_match_len] = '\0';
+
+    for (int i = 0; i < sun_len; ++i)
+        sun_lower[i] = tolower(sun[i]);
+    sun_lower[sun_to_match_len] = '\0';
+
+    //Flag if sun matches argument
+    if (sun_to_match && strcmp(sun_to_match_lower, sun_lower) == 0)
+        result = true;
+
+    //Deallocate temporary variable
+    if (sun_to_match_lower)
+    {
+        delete [] sun_to_match_lower;
+        sun_to_match_lower = NULL;
+    }
+
+    if (sun_lower)
+    {
+        delete [] sun_lower;
+        sun_lower = NULL;
+    }
+
+    return result;
 }
 
 
@@ -707,6 +734,17 @@ int solar_system::display_planet_names(node * head)
     return displayed;
 }
 
+
+
+//Displays sun name
+int solar_system::display_sun(void)
+{
+    if (!sun)
+        return 0;
+
+    cout << "\t" << sun << endl;
+    return 1;
+}
 
 
 //Default constructor - initializes all data members to zero equivalent
@@ -1012,24 +1050,50 @@ int galaxy::extract_planets(char * sun_name, char * all_planets, solar_system * 
 
 
 
+//Displays sun name for each solar system        
+int galaxy::display_all_suns(void)
+{
+    int displayed = 0;      //Total number of solar systems
+
+    //For each solar system, display all planets
+    for (int i = 0; i < num_solar_sys; ++i)
+        displayed += galaxy_array[i].display_sun();
+
+    return displayed;
+}
+
+
+
 //Default constructor
-spaceship::spaceship(): galaxy(2), fuel(0), current_solar_sys(-1) {}
+spaceship::spaceship(): fuel(0), current_solar_sys(-1) {}
 
 
 
 //Constructor with arguments
-spaceship::spaceship(int full_fuel): galaxy(2), fuel(full_fuel), current_solar_sys(-1) {}
+spaceship::spaceship(int full_fuel, int num_sol_sys): galaxy(num_sol_sys), fuel(full_fuel), current_solar_sys(-1) {}
 
 
 
 //Sets new value for current solar system index
-int spaceship::select_solar_sys(int index)
+int spaceship::select_solar_sys(char * sun_name_to_match)
 {
-    if (index < 0 || index >= num_solar_sys)
-        return 0;
+    bool found = false;
+    int index = -1;
+
+    if (!sun_name_to_match)
+        return -1;
+
+    for (int i = 0; i < num_solar_sys && !found; ++i)
+    {
+        if (galaxy_array[i].find_sun(sun_name_to_match) == 1)
+        {
+            index = i;
+            found = true;
+        }
+    }
 
     current_solar_sys = index;
-    return 1;
+    return found;
 }
 
 

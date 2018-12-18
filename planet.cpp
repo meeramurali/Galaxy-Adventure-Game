@@ -242,8 +242,11 @@ bool planet::find_planet(char * to_match)
     //convert to lower case
     for (int i = 0; i < to_match_len; ++i)
         to_match_lower[i] = tolower(to_match[i]);
-    for (int i = 0; i < to_match_len; ++i)
+    to_match_lower[to_match_len] = '\0';
+
+    for (int i = 0; i < name_len; ++i)
         name_lower[i] = tolower(name[i]);
+    name_lower[name_len] = '\0';
 
     //Flag if planet name matches argument
     if (to_match && strcmp(to_match_lower, name_lower) == 0)

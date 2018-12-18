@@ -65,7 +65,7 @@ class solar_system      //Manages a solar-system - contains a CLL of nodes which
                                                     //and habitability
         int find_sun(char * sun_to_match);          //Compares sun name with argument
         int copy_solar_system(const solar_system & to_copy);    //Copies data members of argument solar system
-//      int display_sun(void);                      //Displays sun name
+        int display_sun(void);                      //Displays sun name
         int display_planet_names(void);             //Displays only planet names
 
     private:
@@ -97,7 +97,7 @@ class galaxy        //Manages an array of solar systems
         int display_all(int & num_sol_sys);                 //Dislays all solar systems, supplies number of solar systems
                                                             //through argument
         int display_all_hab_planets(void);                  //Displays all habitable planets in all solar systems
-//      int display_all_suns(void);                         //Displays sun name for each solar system        
+        int display_all_suns(void);                         //Displays sun name for each solar system        
 
     protected:
         solar_system * galaxy_array;    //Dynamic array of solar systems
@@ -114,11 +114,11 @@ class spaceship: public galaxy
 {
     public:
         spaceship();                //Default constructor - initializes data member to zero
-        spaceship(int full_fuel);   //Constructor with arguments
+        spaceship(int full_fuel, int tot_sol_sys);   //Constructor with arguments
         
         int explore_a_planet(int & current_fuel);   //Explores selected planet in current solar system
                                       //and uses up fuel accordingly. Only allow if fuel > 0.
-        int select_solar_sys(int index);   //Sets new value for current solar system index
+        int select_solar_sys(char * sun_to_match);   //Sets new value for current solar system index
         
     protected:
         int fuel;                       //Reduces each time a planet is visited
