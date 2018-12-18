@@ -581,7 +581,7 @@ galaxy::galaxy(): galaxy_array(NULL), galaxy_array_size(0), num_solar_sys(0) {}
 galaxy::galaxy(int array_size)
 {
     //Create an array of argument size (if valid size)
-    if (galaxy_array_size > 0)
+    if (array_size > 0)
     {
         galaxy_array_size = array_size;
         galaxy_array = new solar_system[galaxy_array_size];
@@ -671,6 +671,23 @@ int galaxy::add_solar_system(const solar_system & to_add)
 int galaxy::display_all(void)
 {
     int displayed = 0;
+
+    for (int i = 0; i < num_solar_sys; ++i)
+        displayed += galaxy_array[i].display();
+
+    return displayed;
+}
+
+
+
+//Displays all solar systems and their planets
+//INPUT: no arguments
+//OUTPUT: return type: int (total number of planets)
+int galaxy::display_all(int & num_sol_sys)
+{
+    int displayed = 0;
+
+    num_sol_sys = num_solar_sys;
 
     for (int i = 0; i < num_solar_sys; ++i)
         displayed += galaxy_array[i].display();

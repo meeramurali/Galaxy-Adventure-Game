@@ -81,6 +81,7 @@ class galaxy
         int load_file(const char filename[]);
         int add_solar_system(const solar_system & to_add);
         int display_all(void);
+        int display_all(int & num_sol_sys);
         int display_all_hab_planets(void);
 //        int explore_planet(char * sun_name, char * planet_name);
 
