@@ -15,3 +15,5 @@ moons, larger range of size (radius), amd further away from the sun
 
 The goal is to find a habitable planet which has an optimum distance from sun, and 
 an atmosphere (based on its size)
+
+Note: prog2.cpp contains the main() function
