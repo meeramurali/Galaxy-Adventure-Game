@@ -7,14 +7,15 @@
 //Date:     07/21/2017
 
 //This program implements the member functions of classes,
-//'node', 'solar_system' and 'galaxy'. The galaxy has been implemented 
+//'node', 'solar_system', 'galaxy' and 'spaceship'. The galaxy has been implemented 
 //as a dynamically allocated array of solar system objects. Each solar
 //system contains a sun and a circular linked list (CLL) of planets arranged
 //in sorted order of the planets' orbital position around the sun. The 'node' class
 //manages a single node of the CLL, which contains a pointer to a 'planet'.
 //Since 'planet' is an abstract base class from which the planet types (terrestrial, 
 //gas planets) have been derived, each node's pointer can be set to point to
-//any type of planet.
+//any type of planet. The 'spaceship' is derived from the galaxy class and manages
+//a 'fuel' data member based on planets visited
 
 #include "galaxy.h"
 
@@ -197,14 +198,21 @@ int node::find_planet(char * to_match)
         
 
 
-//Compares orbit positions of argument 
+//Compares orbit position with that of argument node's planet
+//INPUT: 1 argument: a node object
+//OUTPUT: return type: int (1 - current planet's position is greater than
+//or equal to argument's position, 0 - otherwise)
 int node::is_greater_or_equal_orbit_pos(const node & to_compare)
 {
+    //Get orbit position of the planet to compare
     int to_compare_pos = to_compare.a_planet->get_orbit_pos();
-    
+   
+    //If current planet's value is greater than that of argument planet
+    //return 1 
     if (a_planet->get_orbit_pos() >= to_compare_pos)
         return 1;
 
+    //Otherwise return 0
     else
         return 0;
 }
@@ -212,6 +220,8 @@ int node::is_greater_or_equal_orbit_pos(const node & to_compare)
 
 
 //Returns fuel cost to visit planet in node
+//INPUT: no arguments
+//OUTPUT: return type: int (fuel cost)
 int node::calculate_fuel_cost(void)
 {
     return a_planet->calculate_fuel_cost();

@@ -62,6 +62,19 @@ int main()
     else
         cout << "\n*** File not found! ***" << endl;
 
+    //Intro message
+    cout << "\n\n\n*******************************************************************************"
+         << "*******************************************************************************\n"
+         << "Welcome! Your spaceship is ready for take off." << endl << endl
+         << "The goal is to find a habitable terrestrial planet before you run out of fuel." << endl
+         << "You can select a solar system to visit (operation 'a') and explore each of the planets"
+         << " in the current solar system (operation 'b')." << endl
+         << "Remember that each time you visit a planet, you use up fuel (Visiting a gas planet" 
+         << " uses up more fuel \nthan a terrestrial planet, since gas planets are larger in size"
+         << " and have more number of moons, and hence have a greater gravitational pull.)" << endl
+         << "Good Luck!!" << endl
+         << "*******************************************************************************"
+         << "*******************************************************************************\n\n\n";
     
     //Repeat until user wants to quit, i.e. menu choice is 'e' 
     do 
@@ -111,6 +124,7 @@ int main()
         else if (menu_choice == 'b')
         {
             //Explore a planet
+            //Prompt user based on result
             cout << "\n\nPlanets in current solar system: " << endl;
             result = explorer.explore_a_planet(f_lvl);
 
