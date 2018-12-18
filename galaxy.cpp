@@ -42,24 +42,28 @@ node::node(planet * to_copy)
 }
 
 
-/*
+
 //Copy constructor
 //INPUT: 1 argument: a node to copy
 //OUTPUT: no return type
 node::node(const node & to_copy)
 {
-    a_planet = NULL;
+    if (!to_copy.a_planet)
+        a_planet = NULL;
 
-    //Check if planet to copy is terrestrial or gas
-    if (to_copy.allow_landing())
-        a_planet = new terr_planet(to_copy);
+    else
+    {
+        //Check if planet to copy is terrestrial or gas
+        if (to_copy.a_planet->allow_landing() == 1)
+            a_planet = new terr_planet(to_copy.a_planet);
 
-    else 
-        a_planet = new gas_planet(to_copy);
-
-    //Initialize next pointer
-    next = NULL;
+        else 
+            a_planet = new gas_planet(to_copy.a_planet);
+    }
+    
+    next = prev = NULL;
 }
+
 
 
 //Destructor - releases all dynamic memory
@@ -72,14 +76,7 @@ node::~node()
         delete a_planet;
         a_planet = NULL;
     }
-
-    if (next)
-    {
-        delete next;
-        next = NULL;
-    }
 } 
-*/
 
 
 
@@ -214,27 +211,53 @@ solar_system::solar_system(char * sun_name)
 }
 
 
-/*
 //Copy constructor
 solar_system::solar_system(const solar_system & to_copy)
 {
-    //Copy sun from argument object
-    if (to_copy.sun)
+    if (copy_solar_system(to_copy) == -1)
+        sun = NULL;
+        head = tail = NULL;
+}
+
+
+
+//Copied argument solar system into current object
+//INPUT: 1 argument: solar system to copy
+//OUTPUT: return type: int (-1 - failure unable to copy,
+//0 - sun copied, no planets to copy, positive value - number of planets copied)
+int solar_system::copy_solar_system(const solar_system & to_copy)
+{
+    if (!to_copy.sun)
+        return -1;
+
+    //Delete existing sun if any
+    if (sun)
     {
-        sun = new char [strlen(to_copy.sun) + 1];
-        strcpy(sun, to_copy.sun);
+        delete [] sun;
+        sun = NULL;
     }
 
-    else
-        sun = NULL;
+    //Copy sun from argument object
+    sun = new char [strlen(to_copy.sun) + 1];
+    strcpy(sun, to_copy.sun);
 
-    //Copy DLL
+    //Delete any existing planets
+    if (head)
+    {
+        //Remove all planets
+        if (remove_all(head))
+            tail = NULL;
+    }
+
+    //Copy DLL of planets from argument object
+    return copy_dll(head, tail, to_copy.head);
+    
 }
 
 
 
 //Recursive function - copies DLL
-int solar_system::copy_dll(node * & dest, node * src)
+int solar_system::copy_dll(node * & dest, node * & dest_tail, node * src)
 {
     int copied = 0;
 
@@ -242,20 +265,27 @@ int solar_system::copy_dll(node * & dest, node * src)
     if (!src)
     {
         dest = NULL;
+        dest_tail = NULL;
+
         return 0;
     }
 
     //copy src
-    dest = new node;
-   
-    ++copied;
+    dest = new node(* src);
+    ++copied; 
  
     //Recursive call to next node
-    copied += copy_dll(dest->go_next(), src->go_next());
+    copied += copy_dll(dest->go_next(), dest_tail, src->go_next());
+    
+    //If last node, update tail
+    if (copied == 1)
+        dest_tail = dest;
+
+    else if (copied > 1)
+        (dest->go_next())->connect_prev(dest);
 
     return copied;
 }
-*/
 
 
 
@@ -301,14 +331,12 @@ int solar_system::remove_all(node * & head)
 
 
 
-/*
 //Adds a new planet to the DLL
 //INPUT: 1 argument: a planet to add
-//OUTPUT: return type: int (
+//OUTPUT: return type: int (0 -
 int solar_system::add_planet(planet * to_add)
 {
     int new_dist = 0;   //new planet's distance from sun
-    node * current = NULL;     //to traverse dll
 
     //Null argument - flag failure
     if (!to_add)
@@ -317,95 +345,84 @@ int solar_system::add_planet(planet * to_add)
     //Get distance for planet to add
     new_dist = to_add->get_dist();
 
-    //Empty list
-    if (!head)
-    {
-        //Create new node at head
-        head = new node;
-  
-        //Copy argument planet into node
-        if (to_add->allow_landing)
-            head->a_planet = new terr_planet(to_add);
-
-        else 
-            head->a_planet = new gas_planet(to_add);
- 
-        //Set next, prev and tail pointers 
-        head->connect_next(NULL);
-        head->connect_prev(NULL);
-        tail = head;
-    }
-
-    //One or more items in list
-    else
-    {
-        //Start traversing at head of DLL
-        current = head;
-
-        //Compare new distance with current planet's distance
-        //If current distance is lesser, traverse to next node
-        while (current->get_dist() <= new_dist)
-            current = current->go_next();
-
-                
+    //Call recursive function to add new node with new planet in sorted order
+    return add_planet(head, tail, to_add, new_dist);
 }
 
 
 
 int solar_system::add_planet(node * & head, node * & tail, planet * to_add, int new_dist)
 {
-    //base case
+
+    node * temp = NULL;
+    int success = 0;
+
+    //Base case - head is null
     if (!head)
     {
         //Create new node at head
-        head = new node;
+        head = new node(to_add);
   
-        //Copy argument planet into node
-        if (to_add->allow_landing)
-            head->a_planet = new terr_planet(to_add);
-
-        else 
-            head->a_planet = new gas_planet(to_add);
- 
         //Set next, prev and tail pointers 
         head->connect_next(NULL);
-        head->connect_prev(NULL);
-        tail = head;
 
-        return 1;
+        //If empty list
+        if (!tail)
+        {
+            head->connect_prev(NULL);
+            tail = head;
+        }
+
+        //Inserting at end of list
+        else
+        {
+            head->connect_prev(tail);
+            tail = head;
+        }
+
+        success = 1;
     }
 
-
-    node * temp = NULL;
-    int count = 0;
-
-    //base case
-    if (!head)
-        return 0;
+    //Check if its time to insert - is current distance
+    //greater than new distance?
+    else if (head->get_dist() > new_dist)
+    {
+        //Create new node using temp 
+        temp = new node(to_add);
+        
+        //Connect up temp node before head
+        temp->connect_next(head);
+        temp->connect_prev(head->go_prev());
+        head = temp;
+        (temp->go_next())->connect_prev(temp);
+        
+        success = 1;
+    }
 
     //recursive call
-    count = insert_before(head->next);
-
-    //If 2 add new node after
-    if (head->data == 2)
-    {
-        temp = new node;
-        temp->data = 100;
-        temp->next = head;
-        temp->previous = head->previous;
-        head = temp;
-        temp->next->previous = temp;
-
-        return count + 2;
-    }
-
     else
-        return count + 1;
+        success = add_planet(head->go_next(), tail, to_add, new_dist);
 
-
+    return success;
 }
 
-*/
+
+
+//Displays the sun and all planets in order of distance from sun
+//INPUT: no arguments
+//OUTPUT: return type: int (total number of planets)
+int solar_system::display(void)
+{
+    if (!sun)
+        return -1;
+
+    //Display sun
+    cout << "\nSun: " << sun << endl;
+
+    //Display all planets
+    return display_all_planets();
+}
+
 
 
 //Wrapper - Displays all planets in order of distance from sun
@@ -415,6 +432,7 @@ int solar_system::display_all_planets(void)
 {
     return display_all_planets(head); 
 }
+
 
 
 //Displays all planets in order of distance from sun - recursively
@@ -462,14 +480,14 @@ int solar_system::display_habitable_planets(node * head)
         return 0;
 
     //Display current planet if its habitable
-    if (head->check_habitability())
+    if (head->check_habitability() == 1)
     {
         if (head->display_planet())
             ++habitable;
     }
 
     //Recursive call to next node
-    habitable += display_all_planets(head->go_next());
+    habitable += display_habitable_planets(head->go_next());
 
     return habitable;
 }
@@ -493,6 +511,10 @@ int solar_system::find_sun(char * sun_to_match)
 
 
 
+//OUTPUT: return type: int (-2: null argument, -1: no planets in list, 
+//0: no match found, 1: match found, unable to land (gas planet),
+//2: match found, landed successfully (terr planet), not habitable,
+//3: match found, landed successfully (terr planet), habitable!
 int solar_system::explore_planet(char * planet_name)
 {
     node * current = NULL;
@@ -525,14 +547,15 @@ int solar_system::explore_planet(char * planet_name)
     //If planet with matching name is found
     if (planet_found)
     {
+        result = 1;
         //Try landing and check for habitability
         //Flag accordingly
         if (current->land_on_planet())        
         {
-            result = 1;
+            result = 2;
 
             if (current->check_habitability())
-                result = 2;
+                result = 3;
         }
     }
 
@@ -542,6 +565,117 @@ int solar_system::explore_planet(char * planet_name)
 
     return result; 
 }
+
+
+
+//Default constructor - initializes all data members to zero equivalent
+//INPUT: no arguments
+//OUTPUT: no return value
+galaxy::galaxy(): galaxy_array(NULL), galaxy_array_size(0), num_solar_sys(0) {}
+
+
+
+//Constructor with argument
+//INPUT: 1 argument: size of array
+//OUTPUT: no return value
+galaxy::galaxy(int array_size)
+{
+    //Create an array of argument size (if valid size)
+    if (galaxy_array_size > 0)
+    {
+        galaxy_array_size = array_size;
+        galaxy_array = new solar_system[galaxy_array_size];
+    }
+
+    //If invalid size, initialize to zero equivalent
+    else
+    {
+        galaxy_array_size = 0;
+        galaxy_array = NULL;
+    }
+    
+    //Initialize remaining data members
+    num_solar_sys = 0;
+}
+
+
+
+//Copy constructor
+//INPUT: 1 argument: a galaxy object to copy
+//OUTPUT: no return value
+galaxy::galaxy(const galaxy & to_copy)
+{
+    num_solar_sys = 0;
+
+    //Copy galaxy array size and number of solar systems
+    //if valid
+    if (galaxy_array_size > 0)
+    {
+        //Create array of size
+        galaxy_array_size = to_copy.galaxy_array_size;
+        galaxy_array = new solar_system [galaxy_array_size];
+
+        //Copy each solar system from galaxy to copy
+        for (int i = 0; i < to_copy.num_solar_sys; ++i)
+        {
+            if (galaxy_array[i].copy_solar_system(to_copy.galaxy_array[i]))
+                ++num_solar_sys;
+        }
+    }
+}
+
+
+
+//Destructor - releases all dynamic memory
+//INPUT: no arguments
+//OUTPUT: no return value
+galaxy::~galaxy()
+{
+    //If at least one solar system
+    if (galaxy_array)
+    {
+        //Delete galaxy array
+        delete [] galaxy_array;
+        galaxy_array = NULL;
+    }
+
+    //Reset other data members to 0
+    galaxy_array_size = num_solar_sys = 0;
+}
+
+
+
+//Adds a new solar system into first available spot in array
+//INPUT: 1 argument: solar system object to add
+//OUTPUT: return type: int (-1 - failure, array is full, 
+//0 or positive values - no. of planets copied)
+int galaxy::add_solar_system(const solar_system & to_add)
+{
+    //Check if array is full
+    if (num_solar_sys == galaxy_array_size)
+        return -1;
+
+    //Copy argument solar system into array
+    //num_solar_sys is the next non-empty index
+    if (galaxy_array[num_solar_sys].copy_solar_system(to_add) > -1)
+        ++num_solar_sys;
+
+    return num_solar_sys;
+} 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

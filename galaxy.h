@@ -18,15 +18,13 @@ class node
     public:
         node();
         node(planet * to_copy);
-//        node(const node & to_copy); 
-//        ~node();
+        node(const node & to_copy); 
+        ~node();
 
         node *& go_next(void);
         node *& go_prev(void);
         void connect_next(node * connection);
         void connect_prev(node * connection);
-//        bool if_next(void);
-//        bool if_prev(void);
 
         int display_planet(void);
         int land_on_planet(void);
@@ -47,14 +45,16 @@ class solar_system
     public:
         solar_system();
         solar_system(char * sun_name);
-//        solar_system(const solar_system & to_copy);  <<--- finish later
+        solar_system(const solar_system & to_copy); 
         ~solar_system();
 
-//        int add_planet(planet * to_add);          <<--- finish later
+        int add_planet(planet * to_add);     
+        int display(void);
         int display_all_planets(void);
         int display_habitable_planets(void);
         int explore_planet(char * planet_name);
         int find_sun(char * sun_to_match);
+        int copy_solar_system(const solar_system & to_copy);
 
     private:
         char * sun;
@@ -62,7 +62,8 @@ class solar_system
         node * tail;  
 
         int remove_all(node * & head);    //removes all nodes in dll - recursively
-//        int copy_dll(node * & dest, node * src); //Recursive function - copies DLL
+        int copy_dll(node * & dest, node * & dest_tail, node * src); //Recursive function - copies DLL
+        int add_planet(node * & head, node * & tail, planet * to_add, int new_dist);
         int display_all_planets(node * head);
         int display_habitable_planets(node * head);
 };
@@ -73,8 +74,14 @@ class galaxy
 {
     public:
         galaxy();
+        galaxy(int array_size);
         galaxy(const galaxy & to_copy);
         ~galaxy();
+
+        int add_solar_system(const solar_system & to_add);
+        int display_all(void);
+        int display_all_hab_planets(void);
+        int explore_planet(char * sun_name, char * planet_name);
 
     private:
         solar_system * galaxy_array;    //Dynamic array of solar systems

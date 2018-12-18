@@ -141,11 +141,15 @@ int planet::display(void)
         return 0;
 
     //Display all data member values
-    cout << "Planet name: " << name << endl
-         << "Sun: " << sun << endl
-         << "Size: " << size << " thousand miles radius" << endl
-         << "Distance from sun: " << dist << " million miles" << endl
-         << "Number of moons: " << num_moons << endl;
+    cout << "\n\tPlanet name: " << name << endl
+         << "\tSun: " << sun << endl
+         << "\tSize: " << size << " thousand miles radius" << endl
+         << "\tDistance from sun: " << dist << " million miles" << endl
+         << "\tNumber of moons: " << num_moons << endl;
+    if (check_habitability())
+        cout << "\tHabitable!" << endl;
+    else
+        cout << "\tNot habitable!" << endl;
     
     return 1;
 }
