@@ -3,8 +3,8 @@
 //Name:     Meera Murali
 //Email:    mmurali@pdx.edu
 //Class:    202
-//Program:  1
-//Date:     07/14/2017
+//Program:  2
+//Date:     07/21/2017
 
 //This program manages the classes, 'node', 'solar_system' and 'galaxy'. 
 //The galaxy has been implemented as a dynamically allocated array of solar 
@@ -29,25 +29,25 @@ class node              //Manages a single node of a DLL - contains pointer to a
         ~node();                    //Destructor - releases dynamic memory
 
         node *& go_next(void);      //Returns node's next pointer by reference
-        node *& go_prev(void);      //Returns node's previous pointer by reference
         void connect_next(node * connection);   //Sets next pointer to argument location
-        void connect_prev(node * connection);   //Sets previous pointer to argument location
 
         int display_planet(void);           //Displays all planet details
         int land_on_planet(void);           //Allows landing or not based on planet type
         int check_habitability(void);       //Checks habitability of planet in node
         int get_dist(void);                 //Returns distance from sun of planet in node
         int find_planet(char * to_match);   //Compares planet name with argument
+        int is_greater_or_equal_orbit_pos(const node & to_compare);    //Compares orbit positions of argument 
+                                                          //planet with planet in node
+//      int display_planet_name(void);      //Displays planet name        
 
     protected:
         planet * a_planet;      //pointer to a planet of any type
         node * next;            //Pointer to next node
-        node * prev;            //Pointer to previous node
 };
 
 
 
-class solar_system      //Manages a solar-system - contains a DLL of nodes which each point to a planet
+class solar_system      //Manages a solar-system - contains a CLL of nodes which each point to a planet
 {
     public:
         solar_system();                             //Default constructor - initializes data members to zero equivalent
@@ -55,7 +55,7 @@ class solar_system      //Manages a solar-system - contains a DLL of nodes which
         solar_system(const solar_system & to_copy); //Copy constructor - copies argument solar system
         ~solar_system();                            //Destructor - release all dynamic memory
 
-        int add_planet(planet * to_add);            //Adds a new planet to the DLL in order of distance from sun 
+        int add_planet(planet * to_add);            //Adds a new planet to the CLL in sorted order of orbital position
         int display(void);                          //Displays sun and all planets
         int display_all_planets(void);              //Displays all planets
         int display_habitable_planets(void);        //Displays all habitable planets 
@@ -63,17 +63,18 @@ class solar_system      //Manages a solar-system - contains a DLL of nodes which
                                                     //and habitability
         int find_sun(char * sun_to_match);          //Compares sun name with argument
         int copy_solar_system(const solar_system & to_copy);    //Copies data members of argument solar system
+//      int display_sun(void);                      //Displays sun name
+//      int display_planet_names(void);             //Displays only planet names
 
     private:
-        char * sun;                       //Name of the sun
-        node * head;                      //head pointer to DLL of planet nodes
-        node * tail;                      //Tail pointer to DLL of planet nodes  
+        char * sun;    //Name of the sun
+        node * rear;   //rear pointer to cll of planet nodes
 
-        int remove_all(node * & head);                               //removes all nodes in dll - recursively
-        int copy_dll(node * & dest, node * & dest_tail, node * src); //Recursive function - copies DLL
-        int add_planet(node * & head, node * & tail, planet * to_add, int new_dist); //Add new planet in sorted order
-                                                                                     //to DLL - recursively
-        int display_all_planets(node * head);                        //Displays all nodes in DLL - recursively
+        int remove_all(node * & rear, node * & fix_rear);            //Removes all nodes in CLL recursively
+        int copy_cll(node * & head, node * & fix_head, node * src_head, node * src_rear, int & copied);
+        int add_planet(node * & head, planet * to_add);        //Add new planet in sorted order
+                                                                                     //to CLL - recursively
+        int display_all_planets(node * head);                        //Displays all nodes in CLL - recursively
         int display_habitable_planets(node * head);                  //Displays all nodes with habitable planets - recursively
 };
 
@@ -93,6 +94,7 @@ class galaxy        //Manages an array of solar systems
         int display_all(int & num_sol_sys);                 //Dislays all solar systems, supplies number of solar systems
                                                             //through argument
         int display_all_hab_planets(void);                  //Displays all habitable planets in all solar systems
+//      int display_all_suns(void);                         //Displays sun name for each solar system        
 
     private:
         solar_system * galaxy_array;    //Dynamic array of solar systems
@@ -102,3 +104,23 @@ class galaxy        //Manages an array of solar systems
         int extract_planets(char * sun_name, char * all_planets, solar_system * sol_sys);   //Extracts planet names from argument char array
                                                                                             //and builds a solar system with the data
 };
+
+
+/*
+class spaceship: public galaxy
+{
+    public:
+        spaceship();                //Default constructor - initializes data member to zero
+        spaceship(int full_fuel);   //Constructor with arguments
+        
+        int explore_a_planet(void);   //Explores selected planet in selected solar system
+                                      //and uses up fuel accordingly. Only allow if fuel > 0.
+        int select_solar_sys(void);   //Sets new value for current solar system index
+        
+    private:
+        int fuel;                       //Reduces each time a planet is visited
+        int current_solar_sys;          //current index number in galaxy array
+
+        int consume_fuel(int deduct);   //Deducts argument value from fuel value
+}
+*/

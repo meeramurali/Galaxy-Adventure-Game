@@ -3,8 +3,8 @@
 //Name:     Meera Murali
 //Email:    mmurali@pdx.edu
 //Class:    202
-//Program:  1
-//Date:     07/14/2017
+//Program:  2
+//Date:     07/21/2017
 
 //This program manages the planet class and its derived types.
 //The 'planet' is an abstract base class from which the planet types (terrestrial, 
@@ -45,6 +45,10 @@ class planet     //Abstract base class from which 'terrestrial_planet' and 'gas_
         int get_dist(void);               //Returns distance from sun value
         bool find_planet(char * to_match);//Compares argument with planet name
         virtual bool allow_landing(void) = 0; //'Terrestrial planets' always allow landing (return true)
+        int get_orbit_pos(void);          //Returns orbit position value
+//      int display_name(void);           //Displays name of planet
+//        int calculate_fuel_cost(void);    //Returns fuel cost to visit planet based on size and 
+                                          //number of moons
 
     protected:
         char * name;                    //Name of the planet
@@ -52,7 +56,7 @@ class planet     //Abstract base class from which 'terrestrial_planet' and 'gas_
         int size;                       //Size in number of thousand miles radius
         int dist;                       //Distance from sun in number of million miles
         int num_moons;                  //Number of moons
-
+        int orbit_pos;                  //position in orbit around sun in degrees
         virtual int set_size() = 0;     //Sets random size in a specific range based on derived
                                         //'terrestrial planets' are smaller than 'gas planets'
         virtual int set_distance() = 0; //Sets random distance from sun in specific range based on 
@@ -61,6 +65,8 @@ class planet     //Abstract base class from which 'terrestrial_planet' and 'gas_
         virtual int set_moons() = 0;    //Sets random number of moons in specific range based on
                                         //derived - 'terrestrial planets' have no or few moons and
                                         //'gas planets' have large number of moons
+        int set_orbit_pos(void);        //Sets random position in range 0 - 359 degrees angle
+                                        //from line of reference 
 };
 
 

@@ -3,8 +3,8 @@
 //Name:     Meera Murali
 //Email:    mmurali@pdx.edu
 //Class:    202
-//Program:  1
-//Date:     07/14/2017
+//Program:  2
+//Date:     07/21/2017
 
 //This program implements the member functions of the planet class and its derived types.
 //The 'planet' is an abstract base class from which the planet types (terrestrial, 
@@ -54,6 +54,9 @@ planet::planet()
     //Initialize all data members
     name = sun = NULL;
     size = dist = num_moons = 0; 
+    
+    //Set orbit position
+    orbit_pos = set_orbit_pos();
 }
 
 
@@ -80,6 +83,9 @@ planet::planet(char * planet_name, char * sun_name)
     }
     else
         name = NULL;
+
+    //Set orbit position
+    orbit_pos = set_orbit_pos();
 
     //Set remaining data members to their zero equivalent
     size = dist = num_moons = 0; 
@@ -114,6 +120,7 @@ planet::planet(const planet & to_copy)
     size = to_copy.size;
     dist = to_copy.dist;
     num_moons = to_copy.num_moons;
+    orbit_pos = to_copy.orbit_pos;
 }
 
 
@@ -137,7 +144,7 @@ planet::~planet()
     }
     
     //Set remaining data members to their zero equivalent
-    size = dist = num_moons = 0; 
+    size = dist = num_moons = orbit_pos = 0; 
 }
 
 
@@ -163,7 +170,8 @@ int planet::display(void)
     cout << "\tSun: " << sun << endl
          << "\tSize: " << size << " thousand miles radius" << endl
          << "\tDistance from sun: " << dist << " million miles" << endl
-         << "\tNumber of moons: " << num_moons << endl;
+         << "\tNumber of moons: " << num_moons << endl
+         << "\tOrbit position: " << orbit_pos << " degrees" << endl;
 
     //Display habitability
     if (check_habitability())
@@ -228,6 +236,32 @@ bool planet::find_planet(char * to_match)
 
     else
         return false;
+}
+
+
+
+//Sets random position in range 0 - 359 degrees angle
+int planet::set_orbit_pos(void)
+{
+    struct timeval to_seed;     //To get microseconds field of current time
+                                //to seed rand()
+
+    //Seed rand with usec field of time
+    gettimeofday(&to_seed, NULL);
+    srand(to_seed.tv_usec);
+
+    //Generate random size in range 0 - 359 degrees
+    return rand() % (360);
+}
+
+
+
+//Returns orbit position value
+//INPUT: no arguments
+//OUTPUT: return type: int (orbit position)
+int planet::get_orbit_pos(void)
+{
+    return orbit_pos;
 }
 
 
