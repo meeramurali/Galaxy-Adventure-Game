@@ -43,6 +43,9 @@ const int ATMOS_MIN_DIST = 30;      //Min distance from sun for atmosphere to ex
 const int HABIT_MIN_DIST = 60;      //Optimal distance for habitability - lower limit
 const int HABIT_MAX_DIST = 200;     //Optimal distance for habitability - upper limit
 
+const int SIZE_FACTOR = 0.8;
+const int MOONS_FACTOR = 5;
+
 
 
 //Default constructor - initializes all data members to their
@@ -230,12 +233,36 @@ int planet::get_dist(void)
 //Compares argument with planet name
 bool planet::find_planet(char * to_match)
 {
-    //Flag if planet name matches argument
-    if (to_match && strcmp(to_match, name) == 0)
-        return true;
+    bool result = false;
+    int to_match_len = strlen(to_match);
+    int name_len = strlen(name);
+    char * to_match_lower = new char[to_match_len + 1];
+    char * name_lower = new char[name_len + 1];
 
-    else
-        return false;
+    //convert to lower case
+    for (int i = 0; i < to_match_len; ++i)
+        to_match_lower[i] = tolower(to_match[i]);
+    for (int i = 0; i < to_match_len; ++i)
+        name_lower[i] = tolower(name[i]);
+
+    //Flag if planet name matches argument
+    if (to_match && strcmp(to_match_lower, name_lower) == 0)
+        result = true;
+
+    //Deallocate temporary variable
+    if (to_match_lower)
+    {
+        delete [] to_match_lower;
+        to_match_lower = NULL;
+    }
+
+    if (name_lower)
+    {
+        delete [] name_lower;
+        name_lower = NULL;
+    }
+
+    return result;
 }
 
 
@@ -262,6 +289,26 @@ int planet::set_orbit_pos(void)
 int planet::get_orbit_pos(void)
 {
     return orbit_pos;
+}
+
+
+
+//Returns fuel cost to visit planet based on size and number of moons
+int planet::calculate_fuel_cost(void)
+{
+    return (SIZE_FACTOR * size) + (MOONS_FACTOR * num_moons);
+}
+
+
+
+//Displays name of planet
+int planet::display_name(void)
+{
+    if (!name)
+        return 0;
+
+    cout << "\t" << name << endl;
+    return 1;
 }
 
 

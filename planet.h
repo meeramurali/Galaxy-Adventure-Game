@@ -46,8 +46,8 @@ class planet     //Abstract base class from which 'terrestrial_planet' and 'gas_
         bool find_planet(char * to_match);//Compares argument with planet name
         virtual bool allow_landing(void) = 0; //'Terrestrial planets' always allow landing (return true)
         int get_orbit_pos(void);          //Returns orbit position value
-//      int display_name(void);           //Displays name of planet
-//        int calculate_fuel_cost(void);    //Returns fuel cost to visit planet based on size and 
+        int display_name(void);           //Displays name of planet
+        int calculate_fuel_cost(void);    //Returns fuel cost to visit planet based on size and 
                                           //number of moons
 
     protected:

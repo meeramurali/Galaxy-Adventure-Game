@@ -9,9 +9,9 @@
 //This program implements the member functions of classes,
 //'node', 'solar_system' and 'galaxy'. The galaxy has been implemented 
 //as a dynamically allocated array of solar system objects. Each solar
-//system contains a sun and a doubly linked list (DLL) of planets arranged
-//in sorted order of the planets' distance from the sun. The 'node' class
-//manages a single node of the DLL, which contains a pointer to a 'planet'.
+//system contains a sun and a circular linked list (CLL) of planets arranged
+//in sorted order of the planets' orbital position around the sun. The 'node' class
+//manages a single node of the CLL, which contains a pointer to a 'planet'.
 //Since 'planet' is an abstract base class from which the planet types (terrestrial, 
 //gas planets) have been derived, each node's pointer can be set to point to
 //any type of planet.
@@ -210,6 +210,23 @@ int node::is_greater_or_equal_orbit_pos(const node & to_compare)
 }
 
 
+
+//Returns fuel cost to visit planet in node
+int node::calculate_fuel_cost(void)
+{
+    return a_planet->calculate_fuel_cost();
+}
+
+
+
+//Displays planet's name
+int node::display_planet_name(void)
+{
+    return a_planet->display_name();
+}
+
+
+
 //Default constructor - initializes all data members to null
 //INPUT: no arguments
 //OUTPUT: no return value
@@ -324,6 +341,7 @@ int solar_system::remove_all(node * & head, node * & fix_rear)
     //Base case
     if (!fix_rear)
         return 0;
+
     //If at last node
     if (head == fix_rear)
     {
@@ -519,13 +537,15 @@ int solar_system::display_all_planets(node * head)
         
 
 
-/*
 //Wrapper - Displays all habitable planets
 //INPUT: no arguments
 //OUTPUT: return type: int (number of habitable planets)
 int solar_system::display_habitable_planets(void)
 {
-    return display_habitable_planets(head);
+    if (!rear)
+        return 0;
+
+    return display_habitable_planets(rear->go_next()); 
 }
 
 
@@ -538,8 +558,15 @@ int solar_system::display_habitable_planets(node * head)
     int habitable = 0;      //Total number of habitable planets
 
     //Base case
-    if (!head)
-        return 0;
+    if (head == rear)
+    {
+        if (head->check_habitability() == 1)
+        {
+            if (head->display_planet())
+                ++habitable;
+        }
+        return habitable;
+    }
 
     //Display current planet if its habitable
     if (head->check_habitability() == 1)
@@ -553,7 +580,7 @@ int solar_system::display_habitable_planets(node * head)
 
     return habitable;
 }
-*/
+
 
 
 //Compares argument with sun name to check for match
@@ -574,14 +601,14 @@ int solar_system::find_sun(char * sun_to_match)
 }
 
 
-/*
+
 //Explores a specific planet that matches name
 //INPUT: 1 argument: planet name to match
 //OUTPUT: return type: int (-2: null argument, -1: no planets in list, 
 //0: no match found, 1: match found, unable to land (gas planet),
 //2: match found, landed successfully (terr planet), not habitable,
 //3: match found, landed successfully (terr planet), habitable!
-int solar_system::explore_planet(char * planet_name)
+int solar_system::explore_planet(char * planet_name, int & fuel_cost)
 {
     node * current = NULL;      //To traverse DLL of planets
     bool planet_found = false;  //Flag if match is found
@@ -592,14 +619,14 @@ int solar_system::explore_planet(char * planet_name)
         return -2;
 
     //If no planets in list, flag failure
-    if (!head)
+    if (!rear)
         return -1;
 
     //Otherwise, start traversing at head
-    current = head;
+    current = rear->go_next();
    
     //Repeat until a match is found or end of list 
-    while (current && !planet_found)
+    while (current != rear && !planet_found)
     {
         //If its a match, flag as found
         if (current->find_planet(planet_name))
@@ -608,6 +635,14 @@ int solar_system::explore_planet(char * planet_name)
         //Otherwise go to next node
         else
             current = current->go_next();
+    }
+
+    //Last node
+    if (!planet_found)
+    {
+        //If its a match, flag as found
+        if (rear->find_planet(planet_name))
+            planet_found = true;
     }
 
     //If planet with matching name is found
@@ -623,6 +658,9 @@ int solar_system::explore_planet(char * planet_name)
             if (current->check_habitability())
                 result = 3;
         }
+
+        //Update fuel cost
+        fuel_cost = current->calculate_fuel_cost();
     }
 
     //If planet not found
@@ -631,7 +669,43 @@ int solar_system::explore_planet(char * planet_name)
 
     return result; 
 }
-*/
+
+
+
+//Displays only planet names
+int solar_system::display_planet_names(void)
+{
+    if (!rear)
+        return 0;
+
+    return display_planet_names(rear->go_next());
+}
+
+
+
+//Displays all planets names in order of orbit position - recursively
+//INPUT: 1 argument: head pointer 
+//OUTPUT: return type: int (total number of planets)
+int solar_system::display_planet_names(node * head)
+{
+    int displayed = 0;
+
+    //Base case
+    if (head == rear)
+    {
+        if (head->display_planet_name())
+        return ++displayed;
+    }
+
+    //Display current planet
+    if (head->display_planet_name())
+        ++displayed;
+
+    //Recursive call to next node
+    displayed += display_planet_names(head->go_next());
+
+    return displayed;
+}
 
 
 
@@ -767,7 +841,6 @@ int galaxy::display_all(int & num_sol_sys)
 
 
 
-/*
 //Displays all habitable planets in all solar systems
 //INPUT: no arguments
 //OUTPUT: return type: int (total number of habitable planets)
@@ -781,7 +854,7 @@ int galaxy::display_all_hab_planets(void)
 
     return displayed;
 }
-*/
+
 
 
 //Loads galaxy from file
@@ -829,13 +902,8 @@ int galaxy::load_file(const char filename[])
             {
                 //Add solar system into galaxy
                 if (add_solar_system(* new_sol_sys))
-                {
-                    cout << "Added: " << endl;
-                    new_sol_sys->display();
-                    
                     //Increment number of solar systems loaded
                     ++sol_sys_added;
-                }
             }
 
             //Reset solar system
@@ -927,11 +995,7 @@ int galaxy::extract_planets(char * sun_name, char * all_planets, solar_system * 
 
             //Add planet to solar system
             if (sol_sys->add_planet(new_planet))
-            {
-                cout << "Added: " << endl;
-                sol_sys->display();
                 ++num_planets;
-            }
 
             //Reset planet name
             strcpy(planet_name, "");
@@ -947,36 +1011,65 @@ int galaxy::extract_planets(char * sun_name, char * all_planets, solar_system * 
 }
 
 
-/*
+
 //Default constructor
-spaceship::spaceship(): fuel(0) {}
+spaceship::spaceship(): galaxy(2), fuel(0), current_solar_sys(-1) {}
 
 
 
 //Constructor with arguments
-spaceship::spaceship(int full_fuel): fuel(full_fuel) {}
+spaceship::spaceship(int full_fuel): galaxy(2), fuel(full_fuel), current_solar_sys(-1) {}
+
+
+
+//Sets new value for current solar system index
+int spaceship::select_solar_sys(int index)
+{
+    if (index < 0 || index >= num_solar_sys)
+        return 0;
+
+    current_solar_sys = index;
+    return 1;
+}
 
 
 
 //Explores a selected planet if fuel > 0 in current solar system
-int spaceship::visit_a_planet(int & current_fuel)
+int spaceship::explore_a_planet(int & current_fuel)
 {
     int planet_fuel_cost = 0;
+    char planet_name_to_explore [50] = {'\0'};
+    int result = 4;
+
+    //check if any existing solar systems
+    if (!num_solar_sys)
+        return -6;
+
+    //Check current solar system
+    if (current_solar_sys == -1)
+        return -5;
 
     //Check fuel
     if (!(fuel > 0))
         return -4;
 
     //Display planet names to choose from
+    if (galaxy_array[current_solar_sys].display_planet_names())
+    {
+        //Read in planet name to visit
+        cout << "Enter name of planet to visit: ";
+        cin.get(planet_name_to_explore, 100, '\n');
+        cin.ignore(100, '\n');
 
-    //Read in planet name to visit
+        //Explore planet
+        result = galaxy_array[current_solar_sys].explore_planet(planet_name_to_explore, planet_fuel_cost);
 
-    //Explore planet
-
-    //Update fuel - deduct fuel consumed for visiting planet
-    current_fuel = consume_fuel(planet_fuel_cost);
+        //Update fuel - deduct fuel consumed for visiting planet
+        current_fuel = consume_fuel(planet_fuel_cost);
+    }
 
     //Return result and current fuel level
+    return result;
 }
 
 
@@ -988,4 +1081,4 @@ int spaceship::consume_fuel(int deduct)
     return fuel;
 }
 
-*/
+

@@ -46,6 +46,60 @@ int main()
     int total_planets = 0;   //Total number of planets in galaxy
     int total_sol_sys = 0;   //Total solar systems in galaxy
     int total_hab = 0;       //total habitable planets in galaxy
+    spaceship explorer(500);
+    int f_lvl = 0;
+    int result = 0;
+
+    //Load galaxy
+    num_loaded = explorer.load_file(FILENAME);
+    if (num_loaded)
+        cout << "\n*** " << num_loaded << " solar system(s) loaded from file: " 
+             << FILENAME << " ***" <<  endl;
+    else
+        cout << "\n*** File not found! ***" << endl;
+
+    //Set solar system
+    explorer.select_solar_sys(0);
+
+    do
+    {
+        //Explore a planet
+        result = explorer.explore_a_planet(f_lvl);
+
+        if (result == -6)
+            cout << "No existing solar systems" << endl;
+
+        else if (result == -5)
+            cout << "Solar system not set" << endl;
+
+        else if (result == -4)
+            cout << "Out of fuel" << endl;
+
+        else if (result == 0)
+            cout << "No match found" << endl;
+
+        else if (result == 1)
+            cout << "Unable to land spaceship; Its a gas planet!!" << endl;
+
+        else if (result == 2)
+            cout << "Landed spaceship! Its not habitable!!" << endl;
+
+        else if (result == 3)
+            cout << "Landed spaceship" << endl
+                 << "Success!! You have found a habitable planet!!" << endl;
+
+        else
+            cout << "Other" << endl;
+
+        if (f_lvl > 0)
+            cout << "Current fuel level: " << f_lvl << endl << endl;
+
+        else
+            cout << "Out of fuel! Game over!" << endl;
+    }
+    while (f_lvl > 0 && result != 3);
+    
+/*
     galaxy milky_way(2);     //A galaxy object with size of 2 solar systems
 
     //Repeat until user wants to quit, i.e. menu choice is 'd' 
@@ -77,7 +131,7 @@ int main()
             cout << endl << total_planets << " planets total!" << endl << endl;  
         }
         
-/*        //If choice is 'c', display all habitable planets
+        //If choice is 'c', display all habitable planets
         //Prompt user accordingly based on result
         else if (menu_choice == 'c')
         {
@@ -85,8 +139,9 @@ int main()
             total_hab = milky_way.display_all_hab_planets();
             cout << endl << total_hab << " habitable planets total!" << endl << endl;  
         }
-*/    }
+    }
     while (menu_choice != 'd'); //Stop if choice is 'd'
+*/
 
     return 0;
 }
